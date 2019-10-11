@@ -1,0 +1,42 @@
+image: node:8.16
+
+services:
+  - trufflesuite/ganache-cli
+
+cache:
+  paths:
+  - prediction-market/node_modules/
+  - prediction-market/app/node_modules/
+
+before_script:
+  - cd prediction-market
+  - npm install truffle
+  - npm install
+
+stages:
+  - compile
+  - test
+  - deploy
+
+compile_truffle:
+  stage: compile
+  script:
+   - ./node_modules/truffle/build/cli.bundled.js compile
+
+test_truffle:
+  stage: test
+  script:
+   - ./node_modules/truffle/build/cli.bundled.js test --network gitlab
+
+deploy_app:
+  stage: deploy
+  script:
+   # TODO: replace with correct network for deployment
+   #       (must update truffle-config.js too)
+   - ./node_modules/truffle/build/cli.bundled.js migrate --network gitlab
+   - cd app
+   - npm install
+   - npm run build
+   - cp -R ./build/* /host/charje/
+  only:
+   - master
