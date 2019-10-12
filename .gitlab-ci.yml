@@ -26,14 +26,12 @@ compile_truffle:
 test_truffle:
   stage: test
   script:
-   - ./node_modules/truffle/build/cli.bundled.js test --network gitlab
+   - ./node_modules/truffle/build/cli.bundled.js test --network testing
 
 deploy_app:
   stage: deploy
   script:
-   # TODO: replace with correct network for deployment
-   #       (must update truffle-config.js too)
-   - ./node_modules/truffle/build/cli.bundled.js migrate --network gitlab
+   - ./node_modules/truffle/build/cli.bundled.js migrate --network master
    - cd app
    - npm install
    - npm run build
