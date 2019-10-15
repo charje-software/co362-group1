@@ -21,6 +21,15 @@ export default ({ accounts }) => (
     </div>
 
     <div className="section">
+      <h2>Prediction Market</h2>
+      {/* <p>
+        <strong>Contract Balance</strong>
+        <ContractData contract="PredictionMarket" method="balance" />
+      </p> */}
+      <ContractForm contract="PredictionMarket" method="placeBet" />
+    </div>
+
+    <div className="section">
       <h2>SimpleStorage</h2>
       <p>
         This shows a simple ContractData component with no arguments, along with
