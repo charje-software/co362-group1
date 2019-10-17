@@ -3,6 +3,7 @@ pragma solidity >=0.4.21 <0.6.0;
 contract PredictionMarket {
   address payable[] public agents;
   address payable owner;
+  uint public totalBets;
 
   struct Agent {
     uint amountBet;
@@ -14,6 +15,7 @@ contract PredictionMarket {
 
   constructor() public {
     owner = msg.sender;
+    totalBets = address(this).balance;
   }
 
   function agentExists(address agent) public view returns(bool) {
@@ -27,6 +29,7 @@ contract PredictionMarket {
     require(!agentExists(msg.sender), "Agent has already bet");
     agentInfo[msg.sender].amountBet = msg.value;
     agents.push(msg.sender);
+    totalBets = address(this).balance;
   }
 
   function distributeWinnings() public payable {
