@@ -25,6 +25,8 @@ contract PredictionMarket {
     return false;
   }
 
+  // Records bet from a specific address. Only allows for one bet per user
+  // until the next day (or whenever distributeWinnings is called) 
   function placeBet() public payable {
     require(!agentExists(msg.sender), "Agent has already bet");
     agentInfo[msg.sender].amountBet = msg.value;
@@ -32,6 +34,8 @@ contract PredictionMarket {
     totalBets = address(this).balance;
   }
 
+  // Winnings are transferred back to agent. Currently 
+  // transfers the same amount as you bet 
   function distributeWinnings() public payable {
     require(agentExists(msg.sender), "Agent has not bet");
     uint value = agentInfo[msg.sender].amountBet;
