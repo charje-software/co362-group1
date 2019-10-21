@@ -8,33 +8,100 @@ cache:
   - prediction-market/node_modules/
   - prediction-market/app/node_modules/
 
-before_script:
-  - cd prediction-market
-  - npm install truffle
-  - npm install
-
 stages:
-  - compile
+  - install
+  - build
   - test
   - deploy
-
-compile_truffle:
-  stage: compile
+  
+node_deps:
+  stage: install
   script:
-   - ./node_modules/truffle/build/cli.bundled.js compile
+  - cd prediction-market/
+  - npm install truffle
+  - npm install
+  - cd app
+  - npm install
+  only:
+   changes:
+   - prediction-market/package.json
+   - prediction-market/app/package.json
 
-test_truffle:
+build_prediction_market:
+  stage: build
+  script:
+   - cd prediction-market/
+   - ./node_modules/truffle/build/cli.bundled.js compile
+   - cd app
+   - npm run build
+  artifacts:
+   paths:
+   - prediction-market/app/src/contracts
+   - prediction-market/app/build
+  rules:
+   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+     when: on_success
+   - changes:
+     - prediction-market/*
+     when: on_success
+   
+build_agent:
+  stage: build
+  script:
+   - cd agent/
+   - echo "nothing to build for agent"
+  rules:
+   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+     when: on_success
+   - changes:
+     - agent/*
+     when: on_success
+
+test_prediction_market:
+  stage: test
+  dependencies:
+   - build_prediction_market
+  script:
+   - cd prediction-market/
+   - ./node_modules/truffle/build/cli.bundled.js test --network testing
+  rules:
+   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+     when: on_success
+   - changes:
+     - prediction-market/*
+     when: on_success
+   
+test_agent:
   stage: test
   script:
-   - ./node_modules/truffle/build/cli.bundled.js test --network testing
+   - echo "nothing to test for agent"
+  rules:
+   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+     when: on_success
+   - changes:
+     - agent/*
+     when: on_success
+
+
+deploy_contracts:
+  stage: deploy
+  script:
+   - cd prediction-market/
+   - ./node_modules/truffle/build/cli.bundled.js migrate --network master
+  only:
+   refs: 
+   - master
+   changes: 
+   - prediction-market/contracts/*
 
 deploy_app:
   stage: deploy
+  dependencies:
+   - build_prediction_market
   script:
-   - ./node_modules/truffle/build/cli.bundled.js migrate --network master
-   - cd app
-   - npm install
-   - npm run build
-   - cp -R ./build/* /host/charje/
+   - cp -R ./prediction-market/app/build/* /host/charje/
   only:
+   refs: 
    - master
+   changes: 
+   - prediction-market/app/*
