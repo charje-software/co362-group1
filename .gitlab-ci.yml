@@ -4,6 +4,7 @@ services:
   - trufflesuite/ganache-cli
 
 cache:
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
   - prediction-market/node_modules/
   - prediction-market/app/node_modules/
@@ -22,10 +23,13 @@ node_deps:
   - npm install
   - cd app
   - npm install
-  only:
-   changes:
-   - prediction-market/package.json
-   - prediction-market/app/package.json
+  rules:
+   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+     when: on_success
+   - changes:
+     - prediction-market/package.json
+     - prediction-market/app/package.json
+     when: on_success
 
 build_prediction_market:
   stage: build
