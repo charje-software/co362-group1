@@ -29,6 +29,7 @@ node_deps:
    - changes:
      - prediction-market/package.json
      - prediction-market/app/package.json
+     - .gitlab-ci.yml
      when: on_success
 
 build_prediction_market:
@@ -47,6 +48,7 @@ build_prediction_market:
      when: on_success
    - changes:
      - prediction-market/*
+     - .gitlab-ci.yml
      when: on_success
    
 build_agent:
@@ -59,6 +61,7 @@ build_agent:
      when: on_success
    - changes:
      - agent/*
+     - .gitlab-ci.yml
      when: on_success
 
 test_prediction_market:
@@ -73,6 +76,7 @@ test_prediction_market:
      when: on_success
    - changes:
      - prediction-market/*
+     - .gitlab-ci.yml
      when: on_success
    
 test_agent:
@@ -84,6 +88,7 @@ test_agent:
      when: on_success
    - changes:
      - agent/*
+     - .gitlab-ci.yml
      when: on_success
 
 
