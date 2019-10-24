@@ -38,7 +38,7 @@ node_deps:
 
 python_deps:
   stage: install
-  image: python:3.7
+  image: python:3
   script:
    - cd agent/
    - pip install -r requirements.txt
@@ -47,6 +47,7 @@ python_deps:
      when: on_success
    - changes:
      - agent/requirements.txt
+     - .gitlab-ci.yml
      when: on_success
 
 build_prediction_market:
