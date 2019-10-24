@@ -38,7 +38,9 @@ node_deps:
 
 python_deps:
   stage: install
-  image: python:3
+  image: python:3.7
+  tags:
+   - python-job
   script:
    - cd agent/
    - pip install -r requirements.txt
@@ -72,6 +74,8 @@ build_prediction_market:
 build_agent:
   stage: build
   image: python:3.7
+  tags:
+   - python-job
   script:
    - cd agent/
    # not building anything yet, just checking code style
@@ -101,6 +105,8 @@ test_prediction_market:
 
 test_agent:
   stage: test
+  tags:
+   - python-job
   script:
    - cd agent/
    - python test_agent_unittest.py
