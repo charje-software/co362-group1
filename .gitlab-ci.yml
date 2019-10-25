@@ -3,32 +3,56 @@ image: node:8.16
 services:
   - trufflesuite/ganache-cli
 
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
   - prediction-market/node_modules/
   - prediction-market/app/node_modules/
+  - .cache/pip
+  - agent/venv/
 
 stages:
   - install
   - build
   - test
   - deploy
-  
+
 node_deps:
   stage: install
   script:
-  - cd prediction-market/
-  - npm install truffle
-  - npm install
-  - cd app
-  - npm install
+   - cd prediction-market/
+   - npm install truffle
+   - npm install
+   - cd app
+   - npm install
   rules:
    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
      when: on_success
    - changes:
      - prediction-market/package.json
      - prediction-market/app/package.json
+     - .gitlab-ci.yml
+     when: on_success
+
+python_deps:
+  stage: install
+  image: python:3.7
+  tags:
+   - python-job
+  script:
+   - cd agent/
+   - pip install virtualenv
+   - virtualenv venv
+   - source venv/bin/activate
+   - pip install -r requirements.txt
+  rules:
+   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+     when: on_success
+   - changes:
+     - agent/requirements.txt
      - .gitlab-ci.yml
      when: on_success
 
@@ -50,12 +74,19 @@ build_prediction_market:
      - prediction-market/*
      - .gitlab-ci.yml
      when: on_success
-   
+
 build_agent:
   stage: build
+  image: python:3.7
+  tags:
+   - python-job
   script:
    - cd agent/
-   - echo "nothing to build for agent"
+   - pip install virtualenv
+   - virtualenv venv
+   - source venv/bin/activate
+   # not building anything yet, just checking code style
+   - pycodestyle --show-source --show-pep8 --max-line-length=100 *.py
   rules:
    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
      when: on_success
@@ -78,11 +109,18 @@ test_prediction_market:
      - prediction-market/*
      - .gitlab-ci.yml
      when: on_success
-   
+
 test_agent:
   stage: test
+  image: python:3.7
+  tags:
+   - python-job
   script:
-   - echo "nothing to test for agent"
+   - cd agent/
+   - pip install virtualenv
+   - virtualenv venv
+   - source venv/bin/activate
+   - python test_agent_unittest.py
   rules:
    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
      when: on_success
@@ -91,16 +129,15 @@ test_agent:
      - .gitlab-ci.yml
      when: on_success
 
-
 deploy_contracts:
   stage: deploy
   script:
    - cd prediction-market/
    - ./node_modules/truffle/build/cli.bundled.js migrate --network master
   only:
-   refs: 
+   refs:
    - master
-   changes: 
+   changes:
    - prediction-market/contracts/*
 
 deploy_app:
@@ -110,7 +147,7 @@ deploy_app:
   script:
    - cp -R ./prediction-market/app/build/* /host/charje/
   only:
-   refs: 
+   refs:
    - master
-   changes: 
+   changes:
    - prediction-market/app/*
