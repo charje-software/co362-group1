@@ -1,19 +1,24 @@
 pragma solidity >=0.4.21 <0.6.0;
 
+import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
+
 contract PredictionMarket {
-  // Stages enum
-  uint BETTING = 1;
-  uint RANKING = 2;
-  uint CLAIMING = 3;
+  using SafeMath for uint256;
+
+  // Stage enum
+  uint256 BETTING = 0;
+  uint256 RANKING = 1;
+  uint256 CLAIMING = 2;
 
   // Groups
   mapping(address => Agent) public group1;
   mapping(address => Agent) public group2;
   mapping(address => Agent) public group3;
-  mapping(uint => uint) stageToGroupNumber; // only used in stageToGroup()
+  mapping(uint256 => uint256) stageToGroupNumber; // Only used in stageToGroup() and constructor()
 
-  function stageToGroup(uint stage) private view returns(mapping(address => Agent) storage) {
-    uint group = stageToGroupNumber[stage];
+  // Returns the group corresponding to a Stage.
+  function stageToGroup(uint256 stage) private view returns(mapping(address => Agent) storage) {
+    uint256 group = stageToGroupNumber[stage];
     if (group == 1) {
       return group1;
     } else if (group == 2) {
@@ -23,54 +28,52 @@ contract PredictionMarket {
     }
   }
 
-  mapping(uint => GroupInfo) stageToGroupInfo;
+  mapping(uint256 => GroupInfo) public stageToGroupInfo;
 
   struct Agent {
-    uint amountBet;
-    uint demandPrediction;
+    uint256 amountBet;
+    uint256 demandPrediction;
     bool won;
   }
 
-  // TODO change name
+  // TODO: think if name is semantically correct.
   struct GroupInfo {
-    address[] agents; // keyset to group
-    uint totalWinners;
-    uint totalBetAmount;
-    uint consumption;
+    address[] agents;       // Keyset to corresponding group
+    uint256 totalWinners;
+    uint256 totalBetAmount;
+    uint256 consumption;    // Oracle-provided actual aggregate demand
   }
 
-  uint WINNING_THRESHOLD = 100;
+  uint256 WINNING_THRESHOLD = 100;
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;
     stageToGroupNumber[RANKING] = 2;
     stageToGroupNumber[CLAIMING] = 3;
-
-    // stageToGroupInfo[BETTING] = GroupInfo(agents1, 0, 0, 0);
-    // stageToGroupInfo[RANKING] = GroupInfo(agents2, 0, 0, 0);
-    // stageToGroupInfo[CLAIMING] = GroupInfo(agents3, 0, 0, 0);
   }
 
 
-  // True if agent has placed bet in current betting stage.
+  // Returns true if agent has placed bet in current betting stage.
   function hasPlacedBet(address agent) public view returns(bool) {
     mapping(address => Agent) storage group = stageToGroup(BETTING);
     return group[agent].amountBet != 0;
   }
 
+  // Returns true if agent can rank in current ranking stage.
   function canRank(address agent) public view returns(bool) {
     mapping(address => Agent) storage group = stageToGroup(RANKING);
     return group[agent].amountBet != 0;
   }
 
+  // Returns true if agent can claim winnings in current claiming stage.
   function canClaim(address agent) public view returns(bool) {
     mapping(address => Agent) storage group = stageToGroup(CLAIMING);
     return group[agent].amountBet != 0;
   }
 
-  // Records bet from a specific address. Only allows for one bet per user
-  // until the next day or whenever distributeWinnings is called.
-  function placeBet(uint demandPrediction) public payable {
+  // Called by betting agent to place a bet. Adds the agent to the current
+  // betting group.
+  function placeBet(uint256 demandPrediction) public payable {
     require(!hasPlacedBet(msg.sender), "Agent has already bet");
 
     mapping(address => Agent) storage group = stageToGroup(BETTING);
@@ -80,50 +83,62 @@ contract PredictionMarket {
     group[msg.sender].demandPrediction = demandPrediction;
     group[msg.sender].won = false;
     groupInfo.agents.push(msg.sender);
-    groupInfo.totalBetAmount += msg.value;
+    groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
   }
 
+  // Called by betting agent to rank themselves. Sets `won` to true if
+  // `demandPrediction` is within the threshold.
   function rank() public payable {
     require(canRank(msg.sender), "Agent cannot rank now");
 
     mapping(address => Agent) storage group = stageToGroup(RANKING);
     GroupInfo storage groupInfo = stageToGroupInfo[RANKING];
-    uint demandPrediction = group[msg.sender].demandPrediction;
-    if (demandPrediction <= groupInfo.consumption + WINNING_THRESHOLD && demandPrediction >= groupInfo.consumption - WINNING_THRESHOLD) {
+
+    uint256 demandPrediction = group[msg.sender].demandPrediction;
+    if (demandPrediction <= groupInfo.consumption + WINNING_THRESHOLD &&
+        demandPrediction >= groupInfo.consumption - WINNING_THRESHOLD) {
       group[msg.sender].won = true;
       groupInfo.totalWinners++;
     }
   }
 
   // Distribute winnings back to agents who bet.
-  // TODO agent removing itself from agent key set
   function claimWinnings() public payable {
     require(canClaim(msg.sender), "Agent cannot claim at this time");
 
     mapping(address => Agent) storage group = stageToGroup(CLAIMING);
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
+
     if (group[msg.sender].won) {
-      uint reward = groupInfo.totalBetAmount / groupInfo.totalWinners;
+      uint256 reward = groupInfo.totalBetAmount / groupInfo.totalWinners;
       msg.sender.transfer(reward);
     }
     delete group[msg.sender];
+    // TODO: agent removing itself from agent key set.
   }
 
-  function updateConsumption(uint consumption) public payable {
-    // TODO require that the address of the sender is Oracle
+  // Called by Oracle to tell contract the aggregate demand for a time period.
+  function updateConsumption(uint256 consumption) public payable {
+    // TODO: require that the address of the sender is Oracle.
     address[] storage agents = stageToGroupInfo[CLAIMING].agents;
     mapping(address => Agent) storage group = stageToGroup(CLAIMING);
 
-    for (uint i = 0; i < agents.length; i++) {
+    for (uint256 i = 0; i < agents.length; i++) {
       delete group[agents[i]];
     }
 
     agents.length = 0;
 
-    uint tmp = BETTING;
-    BETTING = CLAIMING;
-    CLAIMING = RANKING;
-    RANKING = tmp;
+    // Rotate stages.
+    // TODO: not sure about the logic of this
+    BETTING = (BETTING - 1).mod(3);
+    RANKING = (RANKING - 1).mod(3);
+    CLAIMING = (CLAIMING - 1).mod(3);
+
+    // uint256 tmp = BETTING;
+    // BETTING = CLAIMING;
+    // CLAIMING = RANKING;
+    // RANKING = tmp;
 
     stageToGroupInfo[RANKING].consumption = consumption;
   }
