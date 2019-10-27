@@ -5,10 +5,10 @@ import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
 contract PredictionMarket {
   using SafeMath for uint256;
 
-  // Stage enum
-  uint256 BETTING = 0;
-  uint256 RANKING = 1;
-  uint256 CLAIMING = 2;
+  // Stages
+  uint256 public BETTING = 1;
+  uint256 public RANKING = 2;
+  uint256 public CLAIMING = 3;
 
   // Groups
   mapping(address => Agent) public group1;
@@ -33,7 +33,7 @@ contract PredictionMarket {
   struct Agent {
     uint256 amountBet;
     uint256 demandPrediction;
-    bool won;
+    bool win;
   }
 
   // TODO: think if name is semantically correct.
@@ -81,12 +81,12 @@ contract PredictionMarket {
 
     group[msg.sender].amountBet = msg.value;
     group[msg.sender].demandPrediction = demandPrediction;
-    group[msg.sender].won = false;
+    group[msg.sender].win = false;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
   }
 
-  // Called by betting agent to rank themselves. Sets `won` to true if
+  // Called by betting agent to rank themselves. Sets `win` to true if
   // `demandPrediction` is within the threshold.
   function rank() public payable {
     require(canRank(msg.sender), "Agent cannot rank now");
@@ -97,7 +97,7 @@ contract PredictionMarket {
     uint256 demandPrediction = group[msg.sender].demandPrediction;
     if (demandPrediction <= groupInfo.consumption + WINNING_THRESHOLD &&
         demandPrediction >= groupInfo.consumption - WINNING_THRESHOLD) {
-      group[msg.sender].won = true;
+      group[msg.sender].win = true;
       groupInfo.totalWinners++;
     }
   }
@@ -109,7 +109,7 @@ contract PredictionMarket {
     mapping(address => Agent) storage group = stageToGroup(CLAIMING);
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
 
-    if (group[msg.sender].won) {
+    if (group[msg.sender].win) {
       uint256 reward = groupInfo.totalBetAmount / groupInfo.totalWinners;
       msg.sender.transfer(reward);
     }
@@ -130,15 +130,15 @@ contract PredictionMarket {
     agents.length = 0;
 
     // Rotate stages.
-    // TODO: not sure about the logic of this
-    BETTING = (BETTING - 1).mod(3);
-    RANKING = (RANKING - 1).mod(3);
-    CLAIMING = (CLAIMING - 1).mod(3);
+    // TODO: not sure about the logic of this. Also can't do it because uint cannot be negative.
+    // BETTING = (BETTING - 1).mod(3);
+    // RANKING = (RANKING - 1).mod(3);
+    // CLAIMING = (CLAIMING - 1).mod(3);
 
-    // uint256 tmp = BETTING;
-    // BETTING = CLAIMING;
-    // CLAIMING = RANKING;
-    // RANKING = tmp;
+    uint256 tmp = BETTING;
+    BETTING = CLAIMING;
+    CLAIMING = RANKING;
+    RANKING = tmp;
 
     stageToGroupInfo[RANKING].consumption = consumption;
   }
