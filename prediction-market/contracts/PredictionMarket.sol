@@ -48,7 +48,7 @@ contract PredictionMarket {
     uint256 consumption;    // Oracle-provided actual aggregate demand
   }
 
-  uint256 WINNING_THRESHOLD = 100;
+  uint256 public WINNING_THRESHOLD = 100;
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;

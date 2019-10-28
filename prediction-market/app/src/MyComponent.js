@@ -22,8 +22,8 @@ export default ({ accounts }) => (
     <div className="section">
       <h2>Prediction Market</h2>
       <p>
-        <strong>Contract Balance (Wei): </strong>
-        <ContractData contract="PredictionMarket" method="totalBets" />
+        <strong>Winning threshold: </strong>
+        <ContractData contract="PredictionMarket" method="WINNING_THRESHOLD" />
       </p>
     </div>
   </div>
