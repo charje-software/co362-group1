@@ -1,6 +1,7 @@
 from prediction_market_adapter import PredictionMarketAdapter
 import requests
 
+
 class Oracle:
     """Oracle agent, responsible for feeding live values into prediction market to determine if
     agent bets are successful or not.
@@ -21,11 +22,13 @@ class Oracle:
 
     def update_consumption(self):
         updated_consumption = self.query_live_data()
+        print("Oracle consumption data from previous period: " + updated_consumption + "kW.")
         self.prediction_market.update_consumption(Oracle.ACCOUNT, int(updated_consumption))
 
     def query_live_data(self):
         if self.time_index > Oracle.DATA_SIZE:
             raise Exception("Oracle has run out of data to stream!")
-        updated_consumption = requests.get(Oracle.DATA_URL).json()[str(self.time_index)]['consumption']
+        oracle_data = requests.get(Oracle.DATA_URL).json()[str(self.time_index)]
+        updated_consumption = oracle_data['consumption']
         self.time_index = self.time_index + 1
         return updated_consumption
