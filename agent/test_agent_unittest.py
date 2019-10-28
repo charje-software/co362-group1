@@ -15,7 +15,8 @@ class TestAgent(TestCase):
             agent.place_bet()
 
             mock_prediction_market.place_bet.assert_called_once_with(account,
-                                                                     Agent.DEFAULT_BETTING_AMOUNT)
+                                                                     Agent.DEFAULT_BETTING_AMOUNT,
+                                                                     Agent.DEFAULT_PREDICTION)
 
     def test_collect_reward(self):
         with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
