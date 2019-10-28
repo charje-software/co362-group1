@@ -20,9 +20,9 @@ class Agent:
         self.prediction_market = PredictionMarketAdapter()
 
     def place_bet(self):
-        self.prediction_market.place_bet(self.account, Agent.DEFAULT_BETTING_AMOUNT, 
-            Agent.DEFAULT_PREDICTION)
-    
+        self.prediction_market.place_bet(self.account, Agent.DEFAULT_BETTING_AMOUNT,
+                                         Agent.DEFAULT_PREDICTION)
+
     def rank_bet(self):
         self.prediction_market.rank(self.account)
 

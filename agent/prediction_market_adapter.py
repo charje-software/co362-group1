@@ -7,9 +7,9 @@ from web3 import Web3
 PREDICTION_MARKET = '0x41D504711eEf11Cc040ebA89B32902bf31CCb39e'
 
 # Hashes of methods in prediction market contract
-PLACE_BET = '0x10fe7c48'      # placeBet(uint256)
-RANK = '0x934209ce'           # rank()
-CLAIM_WINNINGS = '0xb401faf1' # claimWinnings()
+PLACE_BET = '0x10fe7c48'       # placeBet(uint256)
+RANK = '0x934209ce'            # rank()
+CLAIM_WINNINGS = '0xb401faf1'  # claimWinnings()
 
 # Local ganache
 RPC_URL = 'http://127.0.0.1:7545'
@@ -29,7 +29,7 @@ class PredictionMarketAdapter:
     def __init__(self, address=PREDICTION_MARKET, rpc_url=RPC_URL):
         self.w3 = Web3(Web3.HTTPProvider(rpc_url))
         self.address = address
-    
+
     def get_call_data(self, function_hash, params):
         """
         Computes the data field for a corresponding contract function call.
@@ -40,7 +40,7 @@ class PredictionMarketAdapter:
         """
         if (len(params) == 0):
             return function_hash + ''.zfill(64)
-        
+
         data = function_hash
         for i in range(0, len(params)):
             data += params[i].zfill(64)
@@ -58,7 +58,7 @@ class PredictionMarketAdapter:
         self.w3.eth.sendTransaction(
             {'to': self.address, 'from': agent_account, 'value': amount_in_eth * ETH_TO_WEI,
              'data': self.get_call_data(PLACE_BET, [format(prediction, 'x')])})
-    
+
     def rank(self, agent_account):
         """
         Calls the PredictionMarket smart contract to rank the agent's prediction.
