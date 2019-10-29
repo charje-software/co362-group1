@@ -3,12 +3,13 @@ const PredictionMarket = artifacts.require("PredictionMarket");
 contract("test: predictionMarket", async accounts => {
 
   ORACLE = accounts[0];
-  AGENT1 = accounts[1];     // winning agent
-  AGENT2 = accounts[2];     // losing agent
-  AGENT1_BET_AMOUNT = 1;    // 1 wei
-  AGENT2_BET_AMOUNT = 2;    // 2 wei
-  AGENT1_PREDICTION = 550;  // within threshold
-  AGENT2_PREDICTION = 700;  // outside threshold
+  AGENT1 = accounts[1];                  // winning agent
+  AGENT2 = accounts[2];                  // losing agent
+  AGENT1_BET_AMOUNT = 1;                 // 1 wei
+  AGENT2_BET_AMOUNT = 2;                 // 2 wei
+  FOLLOWING_GROUP_TOTAL_BET_AMOUNT = 0;  // total bet amount for following group
+  AGENT1_PREDICTION = 550;               // within threshold
+  AGENT2_PREDICTION = 700;               // outside threshold
   ORACLE_CONSUMPTION = 500;
 
   it ('Updates total bet amount for current betting group', async () => {
@@ -56,7 +57,7 @@ contract("test: predictionMarket", async accounts => {
     bettingGroupInfo = await pm.stageToGroupInfo.call(betting);
     waitingGroupInfo = await pm.stageToGroupInfo.call(waiting);
 
-    assert.equal(bettingGroupInfo.totalBetAmount.toNumber(), 0);
+    assert.equal(bettingGroupInfo.totalBetAmount.toNumber(), FOLLOWING_GROUP_TOTAL_BET_AMOUNT);
     assert.equal(waitingGroupInfo.totalBetAmount.toNumber(), AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
   });
 
@@ -70,6 +71,7 @@ contract("test: predictionMarket", async accounts => {
 
     assert.equal(waitingGroupInfo.totalBetAmount.toNumber(), AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
     assert.equal(rankingGroupInfo.totalBetAmount.toNumber(), 0);
+    assert.equal(rankingGroupInfo.consumption.toNumber(), 0);
 
     await pm.updateConsumption(ORACLE_CONSUMPTION, {from: ORACLE});
 

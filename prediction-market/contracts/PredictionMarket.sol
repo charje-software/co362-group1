@@ -52,8 +52,9 @@ contract PredictionMarket {
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;
-    stageToGroupNumber[RANKING] = 2;
-    stageToGroupNumber[CLAIMING] = 3;
+    stageToGroupNumber[WAITING] = 2;
+    stageToGroupNumber[RANKING] = 3;
+    stageToGroupNumber[CLAIMING] = 4;
   }
 
 
@@ -115,7 +116,8 @@ contract PredictionMarket {
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
 
     if (group[msg.sender].win) {
-      uint256 reward = groupInfo.totalBetAmount / groupInfo.totalWinners;
+      // As agent has won, total winners will not be 0.
+      uint256 reward = groupInfo.totalBetAmount.div(groupInfo.totalWinners);
       msg.sender.transfer(reward);
     }
     delete group[msg.sender];
