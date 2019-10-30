@@ -27,7 +27,7 @@ class Oracle:
 
     def query_live_data(self):
         if self.time_index > Oracle.DATA_SIZE:
-            raise Exception("Oracle has run out of data to stream!")
+            raise ValueError("Oracle has no more data to stream for current time period!")
         oracle_data = requests.get(Oracle.DATA_URL).json()[str(self.time_index)]
         updated_consumption = oracle_data['consumption']
         self.time_index = self.time_index + 1
