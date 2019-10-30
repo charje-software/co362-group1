@@ -30,8 +30,8 @@ class TestOracle(TestCase):
             self.assertEqual(mock_oracle_get.call_count, 2)
 
     def test_query_data_end_should_error(self):
-            oracle = Oracle(Oracle.DATA_SIZE + 1)
-            self.assertRaises(ValueError, oracle.query_live_data)
+        oracle = Oracle(Oracle.DATA_SIZE + 1)
+        self.assertRaises(ValueError, oracle.query_live_data)
 
     def test_update_consumption(self):
         with mock.patch('oracle.PredictionMarketAdapter', autospec=True) as mock_prediction_market,\
@@ -48,7 +48,8 @@ class TestOracle(TestCase):
             self.assertEqual(mock_prediction_market.update_consumption.mock_calls, [
                 mock.call(Oracle.ACCOUNT, int(TestOracle.JSON_TEST_DATA['1']['consumption'])),
                 mock.call(Oracle.ACCOUNT, int(TestOracle.JSON_TEST_DATA['2']['consumption'])),
-                mock.call(Oracle.ACCOUNT, int(TestOracle.JSON_TEST_DATA['3']['consumption']))])
+                mock.call(Oracle.ACCOUNT, int(TestOracle.JSON_TEST_DATA['3']['consumption']))
+            ])
 
 
 if __name__ == '__main__':
