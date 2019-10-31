@@ -1,3 +1,8 @@
 web3>=5.2
 pycodestyle>=2.5.0
 colr>=0.9.1
+numpy>=1.14
+scipy>=1.0
+pandas>=0.21
+patsy>=0.5
+statsmodels>=0.8.0

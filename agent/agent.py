@@ -1,7 +1,8 @@
 import time
+from colr import color
 
 from prediction_market_adapter import PredictionMarketAdapter
-from colr import color
+from model_adapter import Model
 
 
 class Agent:
@@ -18,9 +19,11 @@ class Agent:
     DEFAULT_BETTING_AMOUNT = 1
     DEFAULT_PREDICTION = 700
 
-    def __init__(self, account=ACCOUNT_1):
+    def __init__(self, account=ACCOUNT_1, model_file_name="armodel.pkl"):
         self.account = account
         self.prediction_market = PredictionMarketAdapter()
+        self.betting_round = 1  # counter to keep track of betting rounds
+        self.model = Model(model_file_name)
 
     def run(self, period_length, rounds=1, logging=True):
         """
@@ -66,9 +69,12 @@ class Agent:
             time.sleep(period_length)
 
     def place_bet(self):
+        predicted_consumption = self.model.make_prediction(self.betting_round)
+        predicted_consumption = int(predicted_consumption)
+        self.betting_round += 1
         self.prediction_market.place_bet(self.account, Agent.DEFAULT_BETTING_AMOUNT,
-                                         Agent.DEFAULT_PREDICTION)
-        return Agent.DEFAULT_PREDICTION
+                                         predicted_consumption)
+        return predicted_consumption
 
     def rank_bet(self):
         self.prediction_market.rank(self.account)
