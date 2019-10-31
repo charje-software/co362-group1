@@ -35,9 +35,10 @@ class Oracle:
             logging: If true, oracle prints updated consumption each time period. Default: True
         """
 
-        rounds += 3  # Update consumption for 3 extra betting rounds so agents can collect rewards
-        assert Oracle.DATA_SIZE - self.time_index - rounds + 1 >= 0  # Check enough data to stream
+        assert rounds > 0, "Number of betting rounds to run should be greater than 0"
+        assert Oracle.DATA_SIZE - self.time_index - rounds - 2 >= 0, "Insufficient data to stream"
 
+        rounds += 3  # Update consumption for 3 extra betting rounds so agents can collect rewards
         self.logging = logging
 
         while rounds > 0:
