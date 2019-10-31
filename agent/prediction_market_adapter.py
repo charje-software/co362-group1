@@ -4,7 +4,7 @@ from web3 import Web3
 #       Currently addresses need to be set manually.
 
 # Needs to match address of contract migrated to ganache
-PREDICTION_MARKET = '0x41D504711eEf11Cc040ebA89B32902bf31CCb39e'
+PREDICTION_MARKET = '0x5C9fEd50b6B92aD5867A9034d6CEdb44d895b57e'
 
 # Hashes of methods in prediction market contract
 PLACE_BET = '0x10fe7c48'           # placeBet(uint256)
@@ -77,8 +77,11 @@ class PredictionMarketAdapter:
         Args:
             agent_account: The agent's account on the blockchain.
         """
+        balance_before = self.w3.eth.getBalance(agent_account)
         self.w3.eth.sendTransaction({'to': self.address, 'from': agent_account,
                                      'data': self.get_call_data(CLAIM_WINNINGS, [])})
+        balance_after = self.w3.eth.getBalance(agent_account)
+        return (balance_after - balance_before) > 0
 
     def update_consumption(self, oracle_account, updated_consumption):
         """
