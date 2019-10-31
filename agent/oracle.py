@@ -14,7 +14,7 @@ class Oracle:
 
     """
 
-    ACCOUNT = '0x98ccdc5F73bb4F7f97B480920B40A52Fa9dAD663'
+    ACCOUNT = '0xffF852B0db2D6a4c120AC9E5A6a339A468cd6F7E'
     DATA_URL = 'http://146.169.40.141/oracle.json'
     DATA_SIZE = 1489
 
