@@ -1,6 +1,7 @@
-from prediction_market_adapter import PredictionMarketAdapter
 import requests
 import time
+
+from prediction_market_adapter import PredictionMarketAdapter
 
 
 class Oracle:
@@ -34,14 +35,14 @@ class Oracle:
             logging: If true, oracle prints updated consumption each time period. Default: True
         """
 
-        rounds += 2  # Update consumption for 3 extra betting rounds so agents can collect rewards
-        assert Oracle.DATA_SIZE - self.time_index - rounds >= 0  # Check enough data to stream
+        rounds += 3  # Update consumption for 3 extra betting rounds so agents can collect rewards
+        assert Oracle.DATA_SIZE - self.time_index - rounds + 1 >= 0  # Check enough data to stream
 
         self.logging = logging
 
         while rounds > 0:
-            self.update_consumption()
             time.sleep(period_length)
+            self.update_consumption()
             rounds -= 1
 
     def update_consumption(self):
