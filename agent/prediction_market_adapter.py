@@ -7,9 +7,10 @@ from web3 import Web3
 PREDICTION_MARKET = '0x41D504711eEf11Cc040ebA89B32902bf31CCb39e'
 
 # Hashes of methods in prediction market contract
-PLACE_BET = '0x10fe7c48'       # placeBet(uint256)
-RANK = '0x934209ce'            # rank()
-CLAIM_WINNINGS = '0xb401faf1'  # claimWinnings()
+PLACE_BET = '0x10fe7c48'           # placeBet(uint256)
+RANK = '0x934209ce'                # rank()
+CLAIM_WINNINGS = '0xb401faf1'      # claimWinnings()
+UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
 
 # Local ganache
 RPC_URL = 'http://127.0.0.1:7545'
@@ -78,3 +79,16 @@ class PredictionMarketAdapter:
         """
         self.w3.eth.sendTransaction({'to': self.address, 'from': agent_account,
                                      'data': self.get_call_data(CLAIM_WINNINGS, [])})
+
+    def update_consumption(self, oracle_account, updated_consumption):
+        """
+        Calls the PredictionMarket smart contract to pass in live data for most recent time period,
+        used to rank agent predictions.
+
+        Args:
+            oracle_account: The Oracle agent's account on the blockchain.
+            updated_consumption: The consumption figure for the previous time period.
+        """
+        self.w3.eth.sendTransaction(
+            {'to': self.address, 'from': oracle_account,
+             'data': self.get_call_data(UPDATE_CONSUMPTION, [format(updated_consumption, 'x')])})
