@@ -1,6 +1,5 @@
 import unittest
 from unittest import TestCase, mock
-
 from agent import Agent
 
 
@@ -10,13 +9,20 @@ class TestAgent(TestCase):
         with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
+            first_round_AR_prediction = 1076
+            second_round_AR_prediction = 963
             agent = Agent(account)
 
             agent.place_bet()
 
-            mock_prediction_market.place_bet.assert_called_once_with(account,
-                                                                     Agent.DEFAULT_BETTING_AMOUNT,
-                                                                     Agent.DEFAULT_PREDICTION)
+            mock_prediction_market.place_bet.assert_called_with(account,
+                                                                Agent.DEFAULT_BETTING_AMOUNT,
+                                                                first_round_AR_prediction)
+            agent.place_bet()
+
+            mock_prediction_market.place_bet.assert_called_with(account,
+                                                                Agent.DEFAULT_BETTING_AMOUNT,
+                                                                second_round_AR_prediction)
 
     def test_rank_bet(self):
         with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:

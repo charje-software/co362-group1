@@ -4,7 +4,7 @@ from web3 import Web3
 #       Currently addresses need to be set manually.
 
 # Needs to match address of contract migrated to ganache
-PREDICTION_MARKET = '0x5C9fEd50b6B92aD5867A9034d6CEdb44d895b57e'
+PREDICTION_MARKET = '0xfA4a7E814eDf0df5b2aFde058F4df6b118f61A20'
 
 # Hashes of methods in prediction market contract
 PLACE_BET = '0x10fe7c48'           # placeBet(uint256)
