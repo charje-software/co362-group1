@@ -152,13 +152,13 @@ contract PredictionMarket {
   function updateConsumption(uint256 consumption) public payable {
     // TODO: require that the address of the sender is Oracle.
     if (currTimePeriod < 24) {
-      stageToGroupInfo[WAITING2].consumption[currTimePeriod - 1] = consumption;
+      stageToGroupInfo[WAITING2].consumption.push(consumption);
     } else {
-      stageToGroupInfo[WAITING3].consumption[currTimePeriod % STAGE_LENGTH - 1] = consumption;
+      stageToGroupInfo[WAITING3].consumption.push(consumption);
     }
     currTimePeriod++;
 
-    if (currTimePeriod % STAGE_LENGTH == 0) {
+    if (currTimePeriod.mod(STAGE_LENGTH) == 0) {
       GroupInfo storage claimingGroupInfo = stageToGroupInfo[CLAIMING];
       address[] storage agents = claimingGroupInfo.agents;
       mapping(address => Bet) storage group = stageToGroup(CLAIMING);
@@ -191,5 +191,9 @@ contract PredictionMarket {
 
   function getBetPredictionsFromStage(uint256 stage) public view returns(uint256[] memory) {
     return stageToGroup(stage)[msg.sender].predictions;
+  }
+
+  function getOracleConsumptionFromStage(uint256 stage) public view returns(uint256[] memory) {
+    return stageToGroupInfo[stage].consumption;
   }
 }
