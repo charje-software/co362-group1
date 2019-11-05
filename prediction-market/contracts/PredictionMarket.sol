@@ -36,7 +36,7 @@ contract PredictionMarket {
 
   struct Bet {
     uint256 amount;
-    uint256 prediction;
+    uint256[] prediction;
     bool win;
   }
 
@@ -49,6 +49,7 @@ contract PredictionMarket {
   }
 
   uint256 public WINNING_THRESHOLD = 100;
+  uint256 public PREDICTIONS_PER_BET = 48;
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;
@@ -78,7 +79,7 @@ contract PredictionMarket {
 
   // Called by betting agent to place a bet. Adds the agent to the current
   // betting group.
-  function placeBet(uint256 prediction) public payable {
+  function placeBet(uint256[48] memory prediction) public payable {
     require(!hasPlacedBet(msg.sender), "Agent has already placed a bet");
     require(msg.value > 0, "Bet amount has to be greater than 0");
 
@@ -100,9 +101,19 @@ contract PredictionMarket {
     mapping(address => Bet) storage group = stageToGroup(RANKING);
     GroupInfo storage groupInfo = stageToGroupInfo[RANKING];
 
-    uint256 prediction = group[msg.sender].prediction;
-    if (prediction <= groupInfo.consumption + WINNING_THRESHOLD &&
-        prediction >= groupInfo.consumption - WINNING_THRESHOLD) {
+    uint256[] storage prediction = group[msg.sender].prediction;
+
+    // Calculate total error
+    uint256 totalErr = 0;
+    for (uint256 i = 0; i < PREDICTIONS_PER_BET; i++) {
+      if (groupInfo.consumption > prediction[i]) {
+        totalErr += groupInfo.consumption - prediction[i];
+      } else {
+        totalErr += prediction[i] - groupInfo.consumption;
+      }
+    }
+
+    if (totalErr <= WINNING_THRESHOLD * PREDICTIONS_PER_BET) {
       group[msg.sender].win = true;
       groupInfo.totalWinners++;
     }
