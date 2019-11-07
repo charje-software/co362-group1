@@ -2,13 +2,15 @@ const PredictionMarket = artifacts.require("PredictionMarket");
 
 contract("test: predictionMarket", async accounts => {
 
+  STAGE_LENGTH = 24
+  PREDICTIONS_PER_BET = 48
+
   ORACLE = accounts[0];
   AGENT1 = accounts[1];                  // winning agent
   AGENT2 = accounts[2];                  // losing agent
   AGENT1_BET_AMOUNT = 1;                 // 1 wei
   AGENT2_BET_AMOUNT = 2;                 // 2 wei
   FOLLOWING_GROUP_TOTAL_BET_AMOUNT = 0;  // total bet amount for following group
-  PREDICTIONS_PER_BET = 48;
   AGENT1_PREDICTIONS = [];                     // within threshold
   AGENT2_PREDICTIONS = [];                     // outside threshold
   AGENT1_PREDICTION = 550;
@@ -63,7 +65,7 @@ contract("test: predictionMarket", async accounts => {
     assert.equal(bettingGroupInfo.totalBetAmount.toNumber(), AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
     assert.equal(waitingGroupInfo.totalBetAmount.toNumber(), 0);
 
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < STAGE_LENGTH; i++) {
       await pm.updateConsumption(0, {from: ORACLE});
     }
 
@@ -80,12 +82,12 @@ contract("test: predictionMarket", async accounts => {
     let pm = await PredictionMarket.deployed();
 
     // pass WAITING1
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < STAGE_LENGTH; i++) {
       await pm.updateConsumption(0, {from: ORACLE});
     }
 
     // pass WAITING2 and WAITING3
-    for (var i = 0; i < 48; i++) {
+    for (var i = 0; i < STAGE_LENGTH * 2; i++) {
       await pm.updateConsumption(ORACLE_CONSUMPTION, {from: ORACLE});
     }
 
@@ -124,7 +126,7 @@ contract("test: predictionMarket", async accounts => {
     let pm = await PredictionMarket.deployed();
 
     // pass RANKING
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < STAGE_LENGTH; i++) {
       await pm.updateConsumption(0, {from: ORACLE});
     }
 
@@ -152,7 +154,7 @@ contract("test: predictionMarket", async accounts => {
     let pm = await PredictionMarket.deployed();
 
     // pass CLAIMING
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < STAGE_LENGTH; i++) {
       await pm.updateConsumption(0, {from: ORACLE});
     }
 

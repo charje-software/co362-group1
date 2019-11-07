@@ -120,9 +120,9 @@ contract PredictionMarket {
     uint256 totalErr = 0;
     for (uint256 i = 0; i < PREDICTIONS_PER_BET; i++) {
       if (groupInfo.consumption[i] > predictions[i]) {
-        totalErr += groupInfo.consumption[i] - predictions[i];
+        totalErr = totalErr.add(groupInfo.consumption[i].sub(predictions[i]));
       } else {
-        totalErr += predictions[i] - groupInfo.consumption[i];
+        totalErr = totalErr.add(predictions[i].sub(groupInfo.consumption[i]));
       }
     }
 
@@ -151,7 +151,7 @@ contract PredictionMarket {
   // Called by Oracle to tell contract the consumption for a time period.
   function updateConsumption(uint256 consumption) public payable {
     // TODO: require that the address of the sender is Oracle.
-    if (currTimePeriod < 24) {
+    if (currTimePeriod < STAGE_LENGTH) {
       stageToGroupInfo[WAITING2].consumption.push(consumption);
     } else {
       stageToGroupInfo[WAITING3].consumption.push(consumption);
