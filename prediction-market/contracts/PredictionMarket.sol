@@ -36,7 +36,7 @@ contract PredictionMarket {
 
   struct Bet {
     uint256 amount;
-    uint256 prediction;
+    uint256[] predictions;
     bool win;
   }
 
@@ -49,6 +49,7 @@ contract PredictionMarket {
   }
 
   uint256 public WINNING_THRESHOLD = 100;
+  uint256 public PREDICTIONS_PER_BET = 48;
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;
@@ -78,7 +79,7 @@ contract PredictionMarket {
 
   // Called by betting agent to place a bet. Adds the agent to the current
   // betting group.
-  function placeBet(uint256 prediction) public payable {
+  function placeBet(uint256[48] memory predictions) public payable {
     require(!hasPlacedBet(msg.sender), "Agent has already placed a bet");
     require(msg.value > 0, "Bet amount has to be greater than 0");
 
@@ -86,23 +87,33 @@ contract PredictionMarket {
     GroupInfo storage groupInfo = stageToGroupInfo[BETTING];
 
     group[msg.sender].amount = msg.value;
-    group[msg.sender].prediction = prediction;
+    group[msg.sender].predictions = predictions;
     group[msg.sender].win = false;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
   }
 
   // Called by betting agent to rank themselves. Sets `win` to true if
-  // `prediction` is within the threshold.
+  // `predictions` is within the threshold.
   function rank() public payable {
     require(canRank(msg.sender), "Agent cannot rank at this time");
 
     mapping(address => Bet) storage group = stageToGroup(RANKING);
     GroupInfo storage groupInfo = stageToGroupInfo[RANKING];
 
-    uint256 prediction = group[msg.sender].prediction;
-    if (prediction <= groupInfo.consumption + WINNING_THRESHOLD &&
-        prediction >= groupInfo.consumption - WINNING_THRESHOLD) {
+    uint256[] storage predictions = group[msg.sender].predictions;
+
+    // Calculate total error
+    uint256 totalErr = 0;
+    for (uint256 i = 0; i < PREDICTIONS_PER_BET; i++) {
+      if (groupInfo.consumption > predictions[i]) {
+        totalErr += groupInfo.consumption - predictions[i];
+      } else {
+        totalErr += predictions[i] - groupInfo.consumption;
+      }
+    }
+
+    if (totalErr <= WINNING_THRESHOLD * PREDICTIONS_PER_BET) {
       group[msg.sender].win = true;
       groupInfo.totalWinners++;
     }
@@ -148,5 +159,9 @@ contract PredictionMarket {
     WAITING = tmp;
 
     stageToGroupInfo[RANKING].consumption = consumption;
+  }
+
+  function getBetPredictionsFromStage(uint256 stage) public view returns(uint256[] memory) {
+    return stageToGroup(stage)[msg.sender].predictions;
   }
 }

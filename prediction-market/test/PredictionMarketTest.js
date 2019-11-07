@@ -8,18 +8,25 @@ contract("test: predictionMarket", async accounts => {
   AGENT1_BET_AMOUNT = 1;                 // 1 wei
   AGENT2_BET_AMOUNT = 2;                 // 2 wei
   FOLLOWING_GROUP_TOTAL_BET_AMOUNT = 0;  // total bet amount for following group
-  AGENT1_PREDICTION = 550;               // within threshold
-  AGENT2_PREDICTION = 700;               // outside threshold
+  PREDICTIONS_PER_BET = 48;
+  AGENT1_PREDICTIONS = [];                     // within threshold
+  AGENT2_PREDICTIONS = [];                     // outside threshold
+  AGENT1_PREDICTION = 550;
+  AGENT2_PREDICTION = 700;
+  for (var i = 0; i < PREDICTIONS_PER_BET; i++) {
+    AGENT1_PREDICTIONS.push(AGENT1_PREDICTION);
+    AGENT2_PREDICTIONS.push(AGENT2_PREDICTION);
+  }
   ORACLE_CONSUMPTION = 500;
 
   it ('Updates total bet amount for current betting group', async () => {
     let pm = await PredictionMarket.deployed();
 
-    await pm.placeBet(AGENT1_PREDICTION, {from: AGENT1, value: AGENT1_BET_AMOUNT});
-    await pm.placeBet(AGENT2_PREDICTION, {from: AGENT2, value: AGENT2_BET_AMOUNT});
+    await pm.placeBet(AGENT1_PREDICTIONS, {from: AGENT1, value: AGENT1_BET_AMOUNT});
+    await pm.placeBet(AGENT2_PREDICTIONS, {from: AGENT2, value: AGENT2_BET_AMOUNT});
 
-    const bettingGroup = await pm.BETTING.call();
-    const bettingGroupInfo = await pm.stageToGroupInfo.call(bettingGroup);
+    const bettingStage = await pm.BETTING.call();
+    const bettingGroupInfo = await pm.stageToGroupInfo.call(bettingStage);
     const totalBetAmount = bettingGroupInfo.totalBetAmount;
 
     assert.equal(totalBetAmount.toNumber(), AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
@@ -28,13 +35,17 @@ contract("test: predictionMarket", async accounts => {
   it ('Initialises agent\'s bet in group mapping', async () => {
     let pm = await PredictionMarket.deployed();
 
+    const bettingStage = await pm.BETTING.call();
+    const agentPredictions1 = await pm.getBetPredictionsFromStage.call(bettingStage, {from: AGENT1});
+    const agentPredictions2 = await pm.getBetPredictionsFromStage.call(bettingStage, {from: AGENT2});
+
     const agentBet1 = await pm.group1.call(AGENT1);
     const agentBet2 = await pm.group1.call(AGENT2);
 
     assert.equal(agentBet1.amount.toNumber(), AGENT1_BET_AMOUNT);
     assert.equal(agentBet2.amount.toNumber(), AGENT2_BET_AMOUNT);
-    assert.equal(agentBet1.prediction.toNumber(), AGENT1_PREDICTION);
-    assert.equal(agentBet2.prediction.toNumber(), AGENT2_PREDICTION);
+    assert.equal(agentPredictions1[0].toNumber(), AGENT1_PREDICTION);
+    assert.equal(agentPredictions2[0].toNumber(), AGENT2_PREDICTION);
     assert.equal(agentBet1.win, false);
     assert.equal(agentBet2.win, false);
   });
