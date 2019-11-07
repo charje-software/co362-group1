@@ -2,6 +2,7 @@ import threading
 
 from oracle import Oracle
 from agent import Agent
+from ar_agent import ArAgent
 
 PERIOD_LENGTH = 15
 ROUNDS = 10
@@ -15,7 +16,7 @@ ACCOUNTS = ['0x35392caED05CB4A7AE79540530E2AD2a083B536A',
             '0x65ce6E98f733b5Ccb7d9D20f7cd919ce7dcCdd5F',
             '0x8b3A2AcA817beebafA45f28340c70cDaB5D02e16']
 
-agents = [Agent(a) for a in ACCOUNTS]
+agents = [Agent(account=a) for a in ACCOUNTS[:4]] + [ArAgent(account=a) for a in ACCOUNTS[4:]]
 oracle = Oracle()
 
 try:
