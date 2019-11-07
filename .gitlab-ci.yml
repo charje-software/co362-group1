@@ -122,6 +122,11 @@ test_agent:
    - source venv/bin/activate
    - python test_agent_unittest.py
    - python test_oracle_unittest.py
+   - python calc_model_accuracy.py
+  artifacts:
+    paths:
+      - agent/metrics
+    expire_in: 1 week
   rules:
    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
      when: on_success
