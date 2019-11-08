@@ -10,17 +10,18 @@ class TestAgent(TestCase):
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account)
+            predictions = [agent.DEFAULT_PREDICTION] * agent.NUM_PREDICTIONS
 
             agent.place_bet()
 
             mock_prediction_market.place_bet.assert_called_with(account,
                                                                 Agent.DEFAULT_BETTING_AMOUNT,
-                                                                Agent.DEFAULT_PREDICTION)
+                                                                predictions)
             agent.place_bet()
 
             mock_prediction_market.place_bet.assert_called_with(account,
                                                                 Agent.DEFAULT_BETTING_AMOUNT,
-                                                                Agent.DEFAULT_PREDICTION)
+                                                                predictions)
 
     def test_rank_bet(self):
         with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:

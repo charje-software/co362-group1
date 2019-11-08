@@ -7,7 +7,7 @@ from web3 import Web3
 PREDICTION_MARKET = '0xfA4a7E814eDf0df5b2aFde058F4df6b118f61A20'
 
 # Hashes of methods in prediction market contract
-PLACE_BET = '0x10fe7c48'           # placeBet(uint256)
+PLACE_BET = '0x10962d45'             # placeBet(uint256[48])
 RANK = '0x934209ce'                # rank()
 CLAIM_WINNINGS = '0xb401faf1'      # claimWinnings()
 UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
@@ -47,18 +47,22 @@ class PredictionMarketAdapter:
             data += params[i].zfill(64)
         return data
 
-    def place_bet(self, agent_account, amount_in_eth, prediction):
+    def place_bet(self, agent_account, amount_in_eth, predictions):
         """
         Calls the PredictionMarket smart contract to place a bet on behalf of the agent.
 
         Args:
             agent_account: The agent's account on the blockchain.
             amount_in_eth: How much to bet.
-            prediction: How much agent thinks total demand will be
+            predictions: 48 predictions of energy consumption
         """
+        encoded_data = PLACE_BET
+        for i in range(0, len(predictions)):
+            encoded_data += (format(predictions[i], 'x')).zfill(64)
+
         self.w3.eth.sendTransaction(
             {'to': self.address, 'from': agent_account, 'value': amount_in_eth * ETH_TO_WEI,
-             'data': self.get_call_data(PLACE_BET, [format(prediction, 'x')])})
+             'data': encoded_data})
 
     def rank(self, agent_account):
         """

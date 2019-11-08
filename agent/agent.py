@@ -16,6 +16,7 @@ class Agent:
     # For manual testing. Needs to match address of an account on ganache.
     ACCOUNT_1 = '0x9F122516DcB6C39A6E77A27D3631d69478aa9f24'
     DEFAULT_BETTING_AMOUNT = 1
+    NUM_PREDICTIONS = 48
     DEFAULT_PREDICTION = 700
 
     def __init__(self, account=ACCOUNT_1):
@@ -66,8 +67,7 @@ class Agent:
             time.sleep(period_length)
 
     def place_bet(self):
-        # TODO: replace following line by `predicted_consumption = self.predict(48)`
-        predicted_consumption = self.predict(1)[0]
+        predicted_consumption = self.predict(48)
         self.prediction_market.place_bet(self.account, Agent.DEFAULT_BETTING_AMOUNT,
                                          predicted_consumption)
         return predicted_consumption
