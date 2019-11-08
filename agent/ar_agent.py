@@ -14,8 +14,6 @@ class ArAgent(Agent):
                rounds participated in.
     """
 
-    START = 38237  # first time point to predict for relative to the first entry used for training
-
     def __init__(self, account=Agent.ACCOUNT_1, model_file_name="armodel.pkl"):
         super(ArAgent, self).__init__(account)
         self.predictions_count = 0
@@ -23,8 +21,8 @@ class ArAgent(Agent):
 
     def predict(self, n):
         # need to predict all starting from START, but only return last n
-        predictions = self.model.predict(start=ArAgent.START,
-                                         end=ArAgent.START+self.predictions_count+(n-1),
+        predictions = self.model.predict(start=Agent.START,
+                                         end=Agent.START+self.predictions_count+(n-1),
                                          dynamic=False)
         self.predictions_count += n
         return list(map(int, predictions[-n:]))

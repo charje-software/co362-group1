@@ -19,6 +19,10 @@ class Agent:
     NUM_PREDICTIONS = 48
     DEFAULT_PREDICTION = 700
 
+    # For ML agents
+    # first time point to predict for relative to the first entry used for training
+    START = 38237
+
     def __init__(self, account=ACCOUNT_1):
         self.account = account
         self.prediction_market = PredictionMarketAdapter()
