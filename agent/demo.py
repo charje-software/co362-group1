@@ -4,7 +4,7 @@ from oracle import Oracle
 from agent import Agent
 from ar_agent import ArAgent
 
-PERIOD_LENGTH = 15
+PERIOD_LENGTH = 1
 ROUNDS = 10
 ACCOUNTS = ['0x35392caED05CB4A7AE79540530E2AD2a083B536A',
             '0x7d6ccA0864F4c0b5FeDEb70f3d7c8b4d50EF7cD8',

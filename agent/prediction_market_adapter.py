@@ -7,10 +7,13 @@ from web3 import Web3
 PREDICTION_MARKET = '0xfA4a7E814eDf0df5b2aFde058F4df6b118f61A20'
 
 # Hashes of methods in prediction market contract
-PLACE_BET = '0x10962d45'             # placeBet(uint256[48])
+PLACE_BET = '0x10962d45'           # placeBet(uint256[48])
 RANK = '0x934209ce'                # rank()
 CLAIM_WINNINGS = '0xb401faf1'      # claimWinnings()
 UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
+
+# how many predictions to make per bet
+NUM_PREDICTIONS = 48  # must be even
 
 # Local ganache
 RPC_URL = 'http://127.0.0.1:7545'
@@ -54,7 +57,7 @@ class PredictionMarketAdapter:
         Args:
             agent_account: The agent's account on the blockchain.
             amount_in_eth: How much to bet.
-            predictions: 48 predictions of energy consumption
+            predictions: NUM_PREDICTIONS predictions of energy consumption
         """
         encoded_data = PLACE_BET
         for i in range(0, len(predictions)):
