@@ -1,6 +1,5 @@
 from statsmodels.tsa.ar_model import ARResults
 
-from prediction_market_adapter import PredictionMarketAdapter
 from agent import Agent
 
 
