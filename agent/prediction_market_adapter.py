@@ -102,3 +102,10 @@ class PredictionMarketAdapter:
         self.w3.eth.sendTransaction(
             {'to': self.address, 'from': oracle_account,
              'data': self.get_call_data(UPDATE_CONSUMPTION, [format(updated_consumption, 'x')])})
+
+    def get_latest_aggregate_consumption(self):
+        """
+        Calls something to get latest aggregate consumption
+        """
+        # TODO: implement
+        pass
