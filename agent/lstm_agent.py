@@ -1,5 +1,7 @@
 from agent import Agent
 
+import pandas as pd
+
 
 class LstmAgent(Agent):
     """Agent that uses LSTM with public data only.
@@ -9,17 +11,15 @@ class LstmAgent(Agent):
                future aggregate energy consumption.
         predictions_count: counter for keeping track of the number of betting
                rounds participated in.
-        history: past aggregate energy consumption
+        history: past aggregate energy consumption (as a list)
     """
 
-    def __init__(self, account=Agent.ACCOUNT_1, model_file_name="lstm_model.pkl",
-                 data_file_name="historic_aggregate_demand.pkl"):
-        super(ArAgent, self).__init__(account)
+    def __init__(self, account=Agent.ACCOUNT_1, model_file_name="lstm_model.pkl"):
+        super(LstmAgent, self).__init__(account)
         self.predictions_count = 0
         # TODO: save a model and load it here
         # self.model = ...
-        # TODO: save data set and load it here
-        # self.history = ...
+        self.history = list(pd.read_pickle('./data/agg_history.pkl').aggregate_consumption)
 
     def predict(self, n):
         # TODO: use model and history to make predictions
@@ -28,5 +28,4 @@ class LstmAgent(Agent):
         return list(map(int, predictions))
 
     def update_aggregate_data(self):
-        # TODO: add the returned data to the history
-        self.prediction_market_adapter.get_latest_aggregate_consumption()
+        self.history.append(self.prediction_market_adapter.get_latest_aggregate_consumption())

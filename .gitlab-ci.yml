@@ -121,6 +121,7 @@ test_agent:
    - virtualenv venv
    - source venv/bin/activate
    - python test_agent_unittest.py
+   - python test_meter_unittest.py
    - python test_oracle_unittest.py
    - python calc_model_accuracy.py
   artifacts:

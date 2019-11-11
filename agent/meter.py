@@ -9,18 +9,22 @@ class Meter:
         self.
         timestamp: Date and time for latest completed period.
     """
-    def __init__(self, agent_account=Agent.ACCOUNT_1):
-        # TODO: uses a mapping from agent_account to data_file_name to
-        # import this agents individual data
-        # I don't want the data_file to be an input, as the Agent doesn't need to
-        # know that the Meter just pretends to use a real meter but actually has the
-        # whole future stored in a data set.
-        # self.data = ...
-        self.timestamp = pd.to_datetime('2014-02-28 00:00:00')
+
+    def __init__(self, household_name):
+        self.timestamp = pd.to_datetime('2014-01-28 00:00:00')
+        data_file_name = './data/household_' + household_name + '_future.pkl'
+        self.data = pd.read_pickle(data_file_name)
 
     def get_latest_consumption(self):
         """
         Returns the household's consumption during the last completed period.
+
+        Note that you should only call this once per 30min period, as this is
+        just a pretend meter that uses the calls to track time.
         """
-        # TODO: implement
-        return 0
+        assert self.timestamp <= pd.to_datetime('2014-02-28 00:00:00')
+
+        consumption = self.data.loc[self.timestamp, 'consumption']
+        self.timestamp += pd.Timedelta('30min')
+
+        return consumption
