@@ -28,4 +28,4 @@ class LstmAgent(Agent):
         return list(map(int, predictions))
 
     def update_aggregate_data(self):
-        self.history.append(self.prediction_market_adapter.get_latest_aggregate_consumption())
+        self.history.append(self.prediction_market.get_latest_aggregate_consumption())

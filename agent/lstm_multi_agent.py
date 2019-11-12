@@ -16,7 +16,7 @@ class LstmMultiAgent(Agent):
         meter: Meter for fetching latest household energy consumption
     """
 
-    def __init__(self, model_file_name, household_name='MAC000002',
+    def __init__(self, model_file_name, household_name,
                  account=Agent.ACCOUNT_1):
         super(LstmMultiAgent, self).__init__(account)
         self.predictions_count = 0
@@ -34,7 +34,7 @@ class LstmMultiAgent(Agent):
         return list(map(int, predictions))
 
     def update_aggregate_data(self):
-        self.history.append(self.prediction_market_adapter.get_latest_aggregate_consumption())
+        self.history.append(self.prediction_market.get_latest_aggregate_consumption())
 
     def update_private_data(self):
-        self.my_history.append(self.meter.get_latest_aggregate_consumption())
+        self.my_history.append(self.meter.get_latest_consumption())
