@@ -16,6 +16,9 @@ contract PredictionMarket {
   mapping(address => Bet) public group3;
   mapping(uint256 => uint256) stageToGroupNumber; // Only used in stageToGroup() and constructor()
 
+  mapping(address => mapping(uint256 => uint256[48])) public history;
+  mapping(uint256 => uint256[48]) public oracleHistory;
+
   // Returns the group corresponding to a Stage.
   function stageToGroup(uint256 stage) private view returns(mapping(address => Bet) storage) {
     uint256 group = stageToGroupNumber[stage];
@@ -36,7 +39,6 @@ contract PredictionMarket {
     bool win;
   }
 
-  // TODO: think if name is semantically correct.
   struct GroupInfo {
     address[] agents;       // List of agents in the group
     uint256 totalWinners;
@@ -45,6 +47,7 @@ contract PredictionMarket {
   }
 
   uint256 public currTimePeriod = 0; // Index of current period within 24 hour period
+  uint256 public currDay = 0;        // Current day relative to start of contract life
 
   uint256 public WINNING_THRESHOLD = 100;
   uint256 public PREDICTIONS_PER_BET = 48;
@@ -88,6 +91,8 @@ contract PredictionMarket {
     group[msg.sender].win = false;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
+
+    history[msg.sender][currDay + 1] = predictions;
   }
 
   // Called by betting agent to rank themselves. Sets `win` to true if
@@ -136,6 +141,7 @@ contract PredictionMarket {
   function updateConsumption(uint256 consumption) public payable {
     // TODO: require that the address of the sender is Oracle.
     stageToGroupInfo[WAITING].consumption.push(consumption);
+    oracleHistory[currDay][currTimePeriod] = consumption;
     currTimePeriod++;
 
     if (currTimePeriod == PREDICTIONS_PER_BET) {
@@ -158,8 +164,9 @@ contract PredictionMarket {
       CLAIMING = WAITING;
       WAITING = tmp;
 
-      // Reached a new day, reset currTimePeriod
+      // Reached a new day, reset currTimePeriod and increment currDay
       currTimePeriod = 0;
+      currDay++;
     }
 
   }
@@ -170,5 +177,17 @@ contract PredictionMarket {
 
   function getOracleConsumptionFromStage(uint256 stage) public view returns(uint256[] memory) {
     return stageToGroupInfo[stage].consumption;
+  }
+
+  // Get predictions for (day ahead - day offset)
+  // Note: we do not need to check if (dayOffset > currDay + 1) because uint256 wraps
+  // around to the max uint value, which will map to an uninitialised array.
+  function getPredictions(uint256 dayOffset) public view returns(uint256[48] memory) {
+    return history[msg.sender][currDay + 1 - dayOffset];
+  }
+
+  // Get Oracle consumptions for (day ahead - day offset)
+  function getOracleConsumptions(uint256 dayOffset) public view returns(uint256[48] memory) {
+    return oracleHistory[currDay + 1 - dayOffset];
   }
 }
