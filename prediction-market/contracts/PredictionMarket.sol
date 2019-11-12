@@ -5,21 +5,15 @@ import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
 contract PredictionMarket {
   using SafeMath for uint256;
 
-  // Stages
+  // Group stages
   uint256 public BETTING = 1;
-  uint256 public WAITING1 = 2;
-  uint256 public WAITING2 = 3;
-  uint256 public WAITING3 = 4;
-  uint256 public RANKING = 5;
-  uint256 public CLAIMING = 6;
+  uint256 public WAITING = 2;
+  uint256 public CLAIMING = 3;
 
   // Groups: mapping of agent's addresses to their bets.
   mapping(address => Bet) public group1;
   mapping(address => Bet) public group2;
   mapping(address => Bet) public group3;
-  mapping(address => Bet) public group4;
-  mapping(address => Bet) public group5;
-  mapping(address => Bet) public group6;
   mapping(uint256 => uint256) stageToGroupNumber; // Only used in stageToGroup() and constructor()
 
   // Returns the group corresponding to a Stage.
@@ -29,14 +23,8 @@ contract PredictionMarket {
       return group1;
     } else if (group == 2) {
       return group2;
-    } else if (group == 3) {
-      return group3;
-    } else if (group == 4) {
-      return group4;
-    } else if (group == 5) {
-      return group5;
     } else {
-      return group6;
+      return group3;
     }
   }
 
@@ -64,36 +52,32 @@ contract PredictionMarket {
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;
-    stageToGroupNumber[WAITING1] = 2;
-    stageToGroupNumber[WAITING2] = 3;
-    stageToGroupNumber[WAITING3] = 4;
-    stageToGroupNumber[RANKING] = 5;
-    stageToGroupNumber[CLAIMING] = 6;
+    stageToGroupNumber[WAITING] = 2;
+    stageToGroupNumber[CLAIMING] = 3;
   }
 
-
-  // Returns true if agent has placed bet in current betting stage.
-  function hasPlacedBet(address agent) public view returns(bool) {
+  // Returns true if agent can place a bet in current betting stage.
+  function canBet(address agent) public view returns(bool) {
     mapping(address => Bet) storage group = stageToGroup(BETTING);
-    return group[agent].amount != 0;
+    return group[agent].amount == 0 && currTimePeriod < STAGE_LENGTH;
   }
 
-  // Returns true if agent can rank in current ranking stage.
+  // Returns true if agent can rank in current claiming stage.
   function canRank(address agent) public view returns(bool) {
-    mapping(address => Bet) storage group = stageToGroup(RANKING);
-    return group[agent].amount != 0;
+    mapping(address => Bet) storage group = stageToGroup(CLAIMING);
+    return group[agent].amount != 0 && currTimePeriod < STAGE_LENGTH;
   }
 
   // Returns true if agent can claim winnings in current claiming stage.
   function canClaim(address agent) public view returns(bool) {
     mapping(address => Bet) storage group = stageToGroup(CLAIMING);
-    return group[agent].amount != 0;
+    return group[agent].amount != 0 && currTimePeriod >= STAGE_LENGTH;
   }
 
   // Called by betting agent to place a bet. Adds the agent to the current
   // betting group.
   function placeBet(uint256[48] memory predictions) public payable {
-    require(!hasPlacedBet(msg.sender), "Agent has already placed a bet");
+    require(canBet(msg.sender), "Agent cannot bet at this time or has already placed a bet.");
     require(msg.value > 0, "Bet amount has to be greater than 0");
 
     mapping(address => Bet) storage group = stageToGroup(BETTING);
@@ -111,8 +95,8 @@ contract PredictionMarket {
   function rank() public payable {
     require(canRank(msg.sender), "Agent cannot rank at this time");
 
-    mapping(address => Bet) storage group = stageToGroup(RANKING);
-    GroupInfo storage groupInfo = stageToGroupInfo[RANKING];
+    mapping(address => Bet) storage group = stageToGroup(CLAIMING);
+    GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
 
     uint256[] storage predictions = group[msg.sender].predictions;
 
@@ -151,14 +135,10 @@ contract PredictionMarket {
   // Called by Oracle to tell contract the consumption for a time period.
   function updateConsumption(uint256 consumption) public payable {
     // TODO: require that the address of the sender is Oracle.
-    if (currTimePeriod < STAGE_LENGTH) {
-      stageToGroupInfo[WAITING2].consumption.push(consumption);
-    } else {
-      stageToGroupInfo[WAITING3].consumption.push(consumption);
-    }
+    stageToGroupInfo[WAITING].consumption.push(consumption);
     currTimePeriod++;
 
-    if (currTimePeriod.mod(STAGE_LENGTH) == 0) {
+    if (currTimePeriod == PREDICTIONS_PER_BET) {
       GroupInfo storage claimingGroupInfo = stageToGroupInfo[CLAIMING];
       address[] storage agents = claimingGroupInfo.agents;
       mapping(address => Bet) storage group = stageToGroup(CLAIMING);
@@ -175,16 +155,11 @@ contract PredictionMarket {
 
       uint256 tmp = BETTING;
       BETTING = CLAIMING;
-      CLAIMING = RANKING;
-      RANKING = WAITING3;
-      WAITING3 = WAITING2;
-      WAITING2 = WAITING1;
-      WAITING1 = tmp;
+      CLAIMING = WAITING;
+      WAITING = tmp;
 
-      // If reached a new day, reset currTimePeriod
-      if (currTimePeriod == PREDICTIONS_PER_BET) {
-        currTimePeriod = 0;
-      }
+      // Reached a new day, reset currTimePeriod
+      currTimePeriod = 0;
     }
 
   }
