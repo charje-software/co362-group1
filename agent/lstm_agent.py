@@ -1,6 +1,11 @@
-from agent import Agent
-
 import pandas as pd
+import numpy as np
+import math
+
+from tensorflow.keras.models import load_model
+
+from agent import Agent
+from prediction_market_adapter import NUM_PREDICTIONS
 
 
 class LstmAgent(Agent):
@@ -14,16 +19,34 @@ class LstmAgent(Agent):
         history: past aggregate energy consumption (as a list)
     """
 
-    def __init__(self, account=Agent.ACCOUNT_1, model_file_name="lstm_model.pkl"):
+    NUM_HISTORIC_DATA = 144
+
+    def __init__(self, account=Agent.ACCOUNT_1, model_file_name="LSTMunivariate.h5"):
         super(LstmAgent, self).__init__(account)
         self.predictions_count = 0
-        # TODO: save a model and load it here
-        # self.model = ...
+        self.model = load_model(model_file_name)
         self.history = list(pd.read_pickle('./data/agg_history.pkl').aggregate_consumption)
 
     def predict(self, n):
-        # TODO: use model and history to make predictions
-        predictions = [0] * n
+        model_input = np.array(self.history[-(n+LstmAgent.NUM_HISTORIC_DATA):-NUM_PREDICTIONS])
+        mean = 1161.5864476123875  # calculated mean from training data
+        std_dev = 424.746527       # calculated std_dev from training data
+        model_input = (model_input-mean)/std_dev  # normalise input data
+
+        # batch data into format that model requires: 3D array of (?, 144, 1)
+        data = []
+        model_input = np.array(model_input)
+        for i in range(0, n, NUM_PREDICTIONS):
+            indices = range(i-LstmAgent.NUM_HISTORIC_DATA, i)
+            data.append([[x] for x in model_input[indices]])
+
+        num_batches = math.ceil(n / NUM_PREDICTIONS)
+        predictions = []
+        predictions_ = self.model.predict(data)
+        for i in range(num_batches):
+            for j in range(NUM_PREDICTIONS):
+                predictions.append(predictions_[i][j] * std_dev + mean)
+
         self.predictions_count += n
         return list(map(int, predictions))
 

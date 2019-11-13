@@ -49,5 +49,5 @@ metrics_calculator = MetricsCalculator()
 metrics_calculator.calc_metrics(Agent(), "default")
 metrics_calculator.calc_metrics(ArAgent(), "ar_model")
 metrics_calculator.calc_metrics(LstmAgent(), "lstm_model")
-metrics_calculator.calc_metrics(LstmMultiAgent(model_file_name='',
+metrics_calculator.calc_metrics(LstmMultiAgent(model_file_name='LSTMmultivariate.h5',
                                 household_name='MAC000002'), "lstm_multi_model")
