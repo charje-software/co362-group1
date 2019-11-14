@@ -3,28 +3,52 @@ import {
   AccountData,
   ContractData,
 } from "@drizzle/react-components";
+import PredictionGraph from './components/PredictionGraph';
 
-import logo from "./logo.png";
-
-export default ({ accounts }) => (
-  <div className="App">
-    <div>
-      <img src={logo} alt="drizzle-logo" />
-      <h1>CHARJE</h1>
-      <p>Monetizing data from IOT devices using blockchain and ML.</p>
+export default ({ accounts, PredictionMarket }) => (
+  <div>
+    <div style={headerStyle}>
+        <h1 style={{fontFamily: 'Poppins', color: 'white'}}>
+          CHARJE
+        </h1>
+        <p style={{color: 'white'}}>
+          Monetizing data from IOT devices using blockchain and ML.
+        </p>
     </div>
 
-    <div className="section">
-      <h2>Active Account</h2>
-      <AccountData accountIndex={0} units="ether" precision={3} />
-    </div>
+    <div style={{padding: 40, alignContent: 'center'}}>
+      <PredictionGraph predictionMarket={PredictionMarket} />
+      
+      <div className="section" style={roundedContainerStyle}>
+        <h2>Active Account</h2>
+        <AccountData accountIndex={0} units="ether" precision={3} />
+      </div>
 
-    <div className="section">
-      <h2>Prediction Market</h2>
-      <p>
-        <strong>Winning threshold: </strong>
-        <ContractData contract="PredictionMarket" method="WINNING_THRESHOLD" />
-      </p>
+      <div className="section" style={roundedContainerStyle}>
+        <h2>Prediction Market</h2>
+        <p>
+          <strong>Winning threshold: </strong>
+          <ContractData contract="PredictionMarket" method="WINNING_THRESHOLD" />
+        </p>
+      </div>
+
     </div>
   </div>
 );
+
+const headerStyle = {
+  display: 'flex', 
+  flexDirection: 'row', 
+  alignItems: 'center', 
+  justifyContent: 'space-around', 
+  background: 'linear-gradient(to right bottom, #4e036e, #d91a1a)',
+  borderRadius: 0,
+};
+
+const roundedContainerStyle = {
+  borderRadius: '8px', 
+  paddingTop: 7, 
+  paddingBottom: 7,
+  paddingLeft: 15,
+  backgroundColor: '#ebebeb'
+};
