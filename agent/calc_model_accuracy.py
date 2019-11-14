@@ -48,16 +48,16 @@ metrics_calculator.calc_metrics(Agent(), 'default')
 metrics_calculator.calc_metrics(ArAgent(), 'ar_model')
 metrics_calculator.calc_metrics(LstmAgent(), 'lstm_model')
 
-household_2_normalise_values = [1161.5864476123875, 4.24746527e+02, 2.47782910e-01, 2.41221916e-01]
+household_2_normalise_values = [1.16123236e+03, 4.24041018e+02, 2.47572234e-01, 2.41049693e-01]
 metrics_calculator.calc_metrics(LstmMultiAgent(
                                 model_file_name='./models/LSTMmultivariate.h5',
                                 household_name='MAC000002',
                                 normalise_values=household_2_normalise_values),
                                 'lstm_multi_model')
 
-household_6_normalise_values = [9.17196847e+02, 5.31688332e+02, 5.95951121e-02, 5.35316582e-02]
+household_6_normalise_values = [9.58825287e+02, 4.79798972e+02, 5.91586789e-02, 5.25940389e-02]
 metrics_calculator.calc_metrics(LstmMultiAgent(
-                                model_file_name='./models/LSTMmultivariate_household6.h5',
+                                model_file_name='./models/LSTMmultivariate_household_6.h5',
                                 household_name='MAC000006',
                                 normalise_values=household_6_normalise_values),
                                 'lstm_multi_model6')
