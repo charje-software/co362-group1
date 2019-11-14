@@ -10,7 +10,7 @@ class Meter:
         timestamp: Date and time for latest completed period.
     """
     def __init__(self, household_name):
-        self.timestamp = pd.to_datetime('2014-01-28 00:00:00')
+        self.timestamp = pd.to_datetime('2014-01-28 00:30:00')
         data_file_name = './data/household_' + household_name + '_future.pkl'
         self.data = pd.read_pickle(data_file_name)
 

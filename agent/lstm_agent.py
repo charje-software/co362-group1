@@ -21,7 +21,7 @@ class LstmAgent(Agent):
 
     NUM_HISTORIC_DATA = 144
 
-    def __init__(self, account=Agent.ACCOUNT_1, model_file_name="LSTMunivariate.h5"):
+    def __init__(self, account=Agent.ACCOUNT_1, model_file_name='./models/LSTMunivariate.h5'):
         super(LstmAgent, self).__init__(account)
         self.predictions_count = 0
         self.model = load_model(model_file_name)
