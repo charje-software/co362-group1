@@ -61,3 +61,10 @@ metrics_calculator.calc_metrics(LstmMultiAgent(
                                 household_name='MAC000006',
                                 normalise_values=household_6_normalise_values),
                                 'lstm_multi_model6')
+
+household_7_normalise_values = [1.15617658e+03, 4.22140991e+02, 1.95881843e-01, 2.31648739e-01]
+metrics_calculator.calc_metrics(LstmMultiAgent(
+                                model_file_name='./models/LSTMmultivariate_household_7.h5',
+                                household_name='MAC000007',
+                                normalise_values=household_7_normalise_values),
+                                'lstm_multi_model7')
