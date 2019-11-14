@@ -37,7 +37,8 @@ class MetricsCalculator:
         fig.savefig('metrics/' + model_name.split('.')[0] + '-plot.png')
 
 
-metrics_calculator = MetricsCalculator()
+if __name__ == "__main__":
+    metrics_calculator = MetricsCalculator()
 
-metrics_calculator.calc_metrics(Agent(), "default")
-metrics_calculator.calc_metrics(ArAgent(), "armodel")
+    metrics_calculator.calc_metrics(Agent(account='dummy'), "default")
+    metrics_calculator.calc_metrics(ArAgent(account='dummy'), "armodel")
