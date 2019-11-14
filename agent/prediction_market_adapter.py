@@ -1,10 +1,7 @@
 from web3 import Web3
 
-# TODO: Decide how to set constants for local / VM hosted ganache.
-#       Currently addresses need to be set manually.
-
-# Needs to match address of contract migrated to ganache
-PREDICTION_MARKET = '0xfA4a7E814eDf0df5b2aFde058F4df6b118f61A20'
+# Needs to match address of contract migrated to ganache (set manually)
+PREDICTION_MARKET = '0xB2aCEB6591fe5C9CB2Ad3f548D82dfF123E2B56b'
 
 # Hashes of methods in prediction market contract
 PLACE_BET = '0x10962d45'           # placeBet(uint256[48])

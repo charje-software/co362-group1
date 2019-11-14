@@ -24,7 +24,7 @@ class LstmMultiAgent(Agent):
     NUM_HISTORIC_DATA = 144
 
     def __init__(self, model_file_name, household_name, normalise_values,
-                 account=Agent.ACCOUNT_1):
+                 account):
         super(LstmMultiAgent, self).__init__(account)
         self.predictions_count = 0
         self.model = load_model(model_file_name)

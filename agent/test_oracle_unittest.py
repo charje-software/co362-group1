@@ -8,11 +8,11 @@ class TestOracle(TestCase):
 
     JSON_TEST_DATA = {
         '1': {'consumption': '500',
-              'datetime': '2014-01-28 00:00:00'},
-        '2': {'consumption': '288',
               'datetime': '2014-01-28 00:30:00'},
+        '2': {'consumption': '288',
+              'datetime': '2014-01-28 01:00:00'},
         '3': {'consumption': '863',
-              'datetime': '2014-01-28 01:00:00'}
+              'datetime': '2014-01-28 01:30:00'}
         }
 
     def test_query_live_data(self):
@@ -21,10 +21,10 @@ class TestOracle(TestCase):
 
             oracle = Oracle()
 
-            result1 = oracle.query_live_data()
+            result1, _ = oracle.query_live_data()
             self.assertEqual(result1, '500')
 
-            result2 = oracle.query_live_data()
+            result2, _ = oracle.query_live_data()
             self.assertEqual(result2, '288')
 
             self.assertEqual(mock_oracle_get.call_count, 2)
@@ -39,7 +39,7 @@ class TestOracle(TestCase):
 
             mock_prediction_market = mock_prediction_market.return_value
             mock_oracle_get.return_value.json.return_value = TestOracle.JSON_TEST_DATA
-            oracle = Oracle()
+            oracle = Oracle(logging=False)
 
             oracle.update_consumption()
             oracle.update_consumption()
