@@ -15,8 +15,6 @@ from prediction_market_adapter import NUM_PREDICTIONS
 class MetricsCalculator:
     def __init__(self):
         self.actual = list(pd.read_pickle('./data/agg_future.pkl').aggregate_consumption)
-        # trim to multiple of 48
-        self.actual = self.actual[:-(len(self.actual) % NUM_PREDICTIONS)]
 
     def calc_metrics(self, agent, model_name):
         predictions = []
