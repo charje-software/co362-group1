@@ -5,56 +5,96 @@ import {VictoryChart, VictoryGroup, VictoryVoronoiContainer,
 import Fab from '@material-ui/core/Fab';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+const MONTH_NAMES = ["Tomorrow", "Today", "Yesterday", "2 Days Before", 
+                     "3 Days Before", "4 Days Before", "5 Days Before"];
+
 class PredictionGraph extends React.Component {
 
     constructor(props, context) {
       super(props);
-      this.dataKeys = [];
+      this.oracleDataKeys = [];
+      this.agentPredictionDataKeys = [];
       for (let i = 0; i < 7; i++) {
-        this.dataKeys.push(
+        this.oracleDataKeys.push(
           context.drizzle.contracts.PredictionMarket.methods["getOracleConsumptions"].cacheCall(i)
         );
+        this.agentPredictionDataKeys.push(
+          context.drizzle.contracts.PredictionMarket.methods["getPredictions"].cacheCall(i)
+        );
       }
-      this.state = {currentDay: 0};
+      this.state = {currentDay: 1};
     }
     
     hasFetchedData() {
       for (let i = 0; i < 7; i++) {
-        const dataKey = this.dataKeys[i];
-        if (!(dataKey in this.props.predictionMarket.getOracleConsumptions)) {
+        const oracleDataKey = this.oracleDataKeys[i];
+        const agentPredictionKey = this.agentPredictionDataKeys[i];
+        if (!(oracleDataKey in this.props.predictionMarket.getOracleConsumptions) ||
+            !(agentPredictionKey in this.props.predictionMarket.getPredictions)) {
           return false;
         }
       }
       return true;
     }
 
-    renderGraphHeader() {
+    renderGraphFooter() {
       return (
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+        <div 
+          style={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            justifyContent: 'space-around', 
+            alignItems: 'center',
+            borderRadius: 35,
+            background: 'linear-gradient(to right bottom, #2d1896, #0d2ca8)',
+            padding: 10,
+        }}>
           <Fab
             variant="extended"
             size="medium"
             color="primary"
             aria-label="add"
-            style={{marginTop: 15}}
             onClick={() => void this.setState({currentDay: this.state.currentDay + 1})}
             disabled={this.state.currentDay === 6}          
           >
             BACK
           </Fab>
-          <h2 style={{fontFamily: 'Poppins'}}>ORACLE ENERGY CONSUMPTIONS</h2>
+          <p style={{color: 'white'}}>{MONTH_NAMES[this.state.currentDay]}</p>
           <Fab
             variant="extended"
             size="medium"
             color="primary"
             aria-label="add"
-            style={{marginTop: 15}}
             onClick={() => void this.setState({currentDay: this.state.currentDay - 1})}
             disabled={this.state.currentDay === 0}  
           >
             NEXT
           </Fab>
         </div>
+      );
+    }
+
+    renderOraclePrices(data) {
+      return (
+        <VictoryGroup data={data} style={{ data: { fill: '#a10d2d' }}}>
+          <VictoryAxis dependentAxis fixLabelOverlap />
+          <VictoryAxis crossAxis fixLabelOverlap 
+            label="Time"
+            tickValues={[4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48]}
+            tickFormat={this.periodToTime}
+          />
+          <VictoryLine name='oracle'/> 
+          <VictoryScatter style={{ data: { fill: '#a10d2d' }}}/>
+        </VictoryGroup>
+      );
+    }
+
+    renderAgentPredictions(data) {
+      return (
+        <VictoryGroup data={data} style={{ data: { fill: 'navy' }}}>
+          <VictoryLine name='agentPredictions'/>
+          <VictoryScatter style={{data: {fill: 'navy'}}}/>
+        </VictoryGroup>
       );
     }
 
@@ -67,71 +107,64 @@ class PredictionGraph extends React.Component {
           );
         }
 
-        const dataKey = this.dataKeys[this.state.currentDay];
-        var data = this.formatData(this.props.predictionMarket.getOracleConsumptions[dataKey].value);
+        const day = this.state.currentDay;
+        const pm = this.props.predictionMarket;
+
+        const oracleDataKey = this.oracleDataKeys[day];
+        var oracleData = this.formatData(pm.getOracleConsumptions[oracleDataKey].value);
         // VictoryGraphs cannot handle empty data arrays
-        if (data.length === 0) {
-          data.push({x: -1, y: -1});
+        if (oracleData.length === 0) {
+          oracleData.push({x: -1, y: -1});
+        }
+
+        const agentPredictionKey = this.agentPredictionDataKeys[day];
+        var agentPredictionData = 
+          this.formatData(pm.getPredictions[agentPredictionKey].value);
+        
+        if (agentPredictionData.length === 0) {
+          agentPredictionData.push({x: -1, y: -1});
         }
 
         return (
           <div className="section">
-            {this.renderGraphHeader()}
+            <h1 style={{fontFamily: 'Poppins', display: 'flex', justifyContent: 'center'}}>
+              Oracle Energy Consumptions
+            </h1>
             <div style={{borderRadius: '8px', backgroundColor: 'white'}}>
               <VictoryChart
-                  containerComponent={
-                    <VictoryVoronoiContainer
-                      labels={({ datum }) => `${Math.round(datum.x, 2)}, ${Math.round(datum.y, 2)}`}
-                      voronoiBlacklist={['oracle']}
-                    />
-                  }
-                  domain={{y: [0, 2500]}}
+                containerComponent={
+                  <VictoryVoronoiContainer
+                    labels={({ datum }) => `${Math.round(datum.x, 2)}, ${Math.round(datum.y, 2)}`}
+                    voronoiBlacklist={['oracle']}
+                  />
+                }
+                domain={{y: [0, 2500]}}
+                animate={{
+                  onExit: {duration: 400}
+                }}
               >
                 <VictoryLegend
                   orientation="horizontal"
-                  colorScale={[ "grey", "navy" ]}
+                  colorScale={[ "#a10d2d", "navy" ]}
                   data={[{name: "Real Consumption"}, {name: "Your Prediction" }]}
                 />
-                <VictoryGroup data={data}>
-                  <VictoryAxis dependentAxis fixLabelOverlap />
-                  <VictoryAxis crossAxis fixLabelOverlap 
-                    label="Time"
-                    tickValues={[4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48]}
-                    tickFormat={this.periodToTime}
-                  />
-                  <VictoryLine name='oracle'/> 
-                  <VictoryScatter style={{ data: { fill: this.getPlotPointColor } }}/>
-                </VictoryGroup>
-                {/* <VictoryGroup data={agentPredictions}>
-                  <VictoryLine name="line2"/>
-                  <VictoryScatter/>
-                </VictoryGroup> */}
+                {this.renderOraclePrices(oracleData)}
+                {this.renderAgentPredictions(agentPredictionData)}
               </VictoryChart>
             </div>
+            {this.renderGraphFooter()}
           </div>
         );
     }
 
-    formatData(consumptions) {
-      let data = [];
-      for (let i = 0; i < consumptions.length; i++) {
-        const c = parseInt(consumptions[i]);
-        if (c === 0) break;
-        data.push({x: i, y: c});
+    formatData(data) {
+      let formattedData = [];
+      for (let i = 0; i < data.length; i++) {
+        const y = parseInt(data[i]);
+        if (y === 0) break;
+        formattedData.push({x: i, y: y});
       }
-      return data;
-    }
-
-    // Very simple function for now. As we add more graph
-    // lines we will change this.
-    getPlotPointColor = (data) => {
-      if (data.y > 150) {
-          return "yellow";
-      } else if (data.y > 110) {
-          return "orange";
-      } else {
-          return "red";
-      }
+      return formattedData;
     }
 
     periodToTime = (period) => {
