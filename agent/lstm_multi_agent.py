@@ -23,7 +23,7 @@ class LstmMultiAgent(Agent):
 
     NUM_HISTORIC_DATA = 144
 
-    def __init__(self, model_file_name, household_name,
+    def __init__(self, model_file_name, household_name, normalise_values,
                  account=Agent.ACCOUNT_1):
         super(LstmMultiAgent, self).__init__(account)
         self.predictions_count = 0
@@ -32,17 +32,17 @@ class LstmMultiAgent(Agent):
         self.my_history = list(pd.read_pickle(data_file_name).consumption)
         self.history = list(pd.read_pickle('./data/agg_history.pkl').aggregate_consumption)
         self.meter = Meter(household_name)
+        self.agg_mean = normalise_values[0]
+        self.agg_std_dev = normalise_values[1]
+        self.mean = normalise_values[2]
+        self.std_dev = normalise_values[3]
 
     def predict(self, n):
         agg_history = np.array(self.history[-(n+LstmMultiAgent.NUM_HISTORIC_DATA):-NUM_PREDICTIONS])
-        agg_mean = 1161.5864476123875  # calculated mean from training data
-        agg_std_dev = 4.24746527e+02   # calculated std_dev from training data
-        agg_history = (agg_history-agg_mean)/agg_std_dev  # normalise input data
+        agg_history = (agg_history-self.agg_mean)/self.agg_std_dev  # normalise input data
 
         history = np.array(self.my_history[-(n+LstmMultiAgent.NUM_HISTORIC_DATA):-NUM_PREDICTIONS])
-        mean = 2.47782910e-01
-        std_dev = 2.41221916e-01
-        history = (history-mean)/std_dev
+        history = (history-self.mean)/self.std_dev
 
         # batch data into format that model requires: 3D array of (?, 144, 2)
         data = []
@@ -60,7 +60,7 @@ class LstmMultiAgent(Agent):
         predictions_ = self.model.predict(data)
         for i in range(num_batches):
             for j in range(NUM_PREDICTIONS):
-                predictions.append(predictions_[i][j] * agg_std_dev + agg_mean)
+                predictions.append(predictions_[i][j] * self.agg_std_dev + self.agg_mean)
 
         self.predictions_count += n
         return list(map(int, predictions))
