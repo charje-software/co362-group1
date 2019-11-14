@@ -5,7 +5,7 @@ import {VictoryChart, VictoryGroup, VictoryVoronoiContainer,
 import Fab from '@material-ui/core/Fab';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const MONTH_NAMES = ["Tomorrow", "Today", "Yesterday", "2 Days Before", 
+const TIME_MARKERS = ["Tomorrow", "Today", "Yesterday", "2 Days Before", 
                      "3 Days Before", "4 Days Before", "5 Days Before"];
 
 class PredictionGraph extends React.Component {
@@ -59,7 +59,7 @@ class PredictionGraph extends React.Component {
           >
             BACK
           </Fab>
-          <p style={{color: 'white'}}>{MONTH_NAMES[this.state.currentDay]}</p>
+          <p style={{color: 'white'}}>{TIME_MARKERS[this.state.currentDay]}</p>
           <Fab
             variant="extended"
             size="medium"
@@ -112,18 +112,10 @@ class PredictionGraph extends React.Component {
 
         const oracleDataKey = this.oracleDataKeys[day];
         var oracleData = this.formatData(pm.getOracleConsumptions[oracleDataKey].value);
-        // VictoryGraphs cannot handle empty data arrays
-        if (oracleData.length === 0) {
-          oracleData.push({x: -1, y: -1});
-        }
 
         const agentPredictionKey = this.agentPredictionDataKeys[day];
         var agentPredictionData = 
           this.formatData(pm.getPredictions[agentPredictionKey].value);
-        
-        if (agentPredictionData.length === 0) {
-          agentPredictionData.push({x: -1, y: -1});
-        }
 
         return (
           <div className="section">
@@ -134,7 +126,7 @@ class PredictionGraph extends React.Component {
               <VictoryChart
                 containerComponent={
                   <VictoryVoronoiContainer
-                    labels={({ datum }) => `${Math.round(datum.x, 2)}, ${Math.round(datum.y, 2)}`}
+                    labels={({ datum }) => `${this.periodToTime(datum.x)}, ${Math.round(datum.y, 2)}`}
                     voronoiBlacklist={['oracle']}
                   />
                 }
@@ -164,11 +156,19 @@ class PredictionGraph extends React.Component {
         if (y === 0) break;
         formattedData.push({x: i, y: y});
       }
+      // VictoryChart data cannot take an empty array
+      if (formattedData.length === 0) {
+        formattedData.push({x: 0, y: 0});
+      }
       return formattedData;
     }
 
     periodToTime = (period) => {
-      return `${period/2}:00`;
+      const hour = Math.floor((period + 1) / 2);
+      if ((period + 1) % 2 === 0) {
+        return `${hour}:00`
+      }
+      return `${hour}:30`;
     }
 }
 
