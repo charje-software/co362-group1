@@ -21,7 +21,7 @@ class LstmAgent(Agent):
 
     NUM_HISTORIC_DATA = 144
 
-    def __init__(self, account=Agent.ACCOUNT_1, model_file_name='./models/LSTMunivariate.h5'):
+    def __init__(self, account=Agent.ACCOUNT_1, model_file_name="./models/LSTMunivariate.h5"):
         super(LstmAgent, self).__init__(account)
         self.predictions_count = 0
         self.model = load_model(model_file_name)
@@ -29,8 +29,8 @@ class LstmAgent(Agent):
 
     def predict(self, n):
         model_input = np.array(self.history[-(n+LstmAgent.NUM_HISTORIC_DATA):-NUM_PREDICTIONS])
-        mean = 1161.5864476123875  # calculated mean from training data
-        std_dev = 424.746527       # calculated std_dev from training data
+        mean = 959.1326234         # calculated mean from training data
+        std_dev = 480.45316223     # calculated std_dev from training data
         model_input = (model_input-mean)/std_dev  # normalise input data
 
         # batch data into format that model requires: 3D array of (?, 144, 1)
