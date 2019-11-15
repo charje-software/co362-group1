@@ -27,8 +27,12 @@ export default ({ accounts, PredictionMarket }) => (
       <div className="section" style={roundedContainerStyle}>
         <h2>Prediction Market</h2>
         <p>
-          <strong>Winning threshold: </strong>
-          <ContractData contract="PredictionMarket" method="WINNING_THRESHOLD" />
+          <strong>Top tier threshold: </strong>
+          <ContractData contract="PredictionMarket" method="TOP_TIER_THRESHOLD" />
+        </p>
+        <p>
+          <strong>Mid tier threshold: </strong>
+          <ContractData contract="PredictionMarket" method="MID_TIER_THRESHOLD" />
         </p>
       </div>
 

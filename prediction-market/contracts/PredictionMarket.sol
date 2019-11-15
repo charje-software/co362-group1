@@ -10,6 +10,24 @@ contract PredictionMarket {
   uint256 public WAITING = 2;
   uint256 public CLAIMING = 3;
 
+  // Tier enums
+  uint256 public LOSER = 0;
+  uint256 public MID_TIER = 1;
+  uint256 public TOP_TIER = 2;
+
+  uint256 public TOP_TIER_THRESHOLD = 75;    // Threshold for top tier bet winners
+  uint256 public MID_TIER_THRESHOLD = 150;   // Threshold for mid tier bet winners
+  uint256 public TOP_TIER_WINNINGS_SCALE = 5; // Scaled winnings for top tier winners
+  uint256 public MID_TIER_WINNINGS_SCALE = 3; // Scaled winnings for mid tier winners
+  uint256 public LOSER_WINNINGS_SCALE = 1;   // Base winnings for losers
+  mapping(uint256 => uint256) scale;
+
+  uint256 public PREDICTIONS_PER_BET = 48;
+  uint256 public STAGE_LENGTH = 24; // Number of time periods within a stage
+
+  uint256 public currTimePeriod = 0; // Index of current period within 24 hour period
+  uint256 public currDay = 0;        // Current day relative to start of contract life
+
   // Groups: mapping of agent's addresses to their bets.
   mapping(address => Bet) public group1;
   mapping(address => Bet) public group2;
@@ -36,27 +54,25 @@ contract PredictionMarket {
   struct Bet {
     uint256 amount;
     uint256[] predictions;
-    bool win;
+    uint256 tier;
   }
 
   struct GroupInfo {
     address[] agents;       // List of agents in the group
-    uint256 totalWinners;
+    uint256 topTierCount;
+    uint256 midTierCount;
+    uint256 loserCount;
     uint256 totalBetAmount;
     uint256[] consumption;    // Oracle-provided actual aggregate demand
   }
-
-  uint256 public currTimePeriod = 0; // Index of current period within 24 hour period
-  uint256 public currDay = 0;        // Current day relative to start of contract life
-
-  uint256 public WINNING_THRESHOLD = 100;
-  uint256 public PREDICTIONS_PER_BET = 48;
-  uint256 public STAGE_LENGTH = 24; // Number of time periods within a stage
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;
     stageToGroupNumber[WAITING] = 2;
     stageToGroupNumber[CLAIMING] = 3;
+    scale[LOSER] = LOSER_WINNINGS_SCALE;
+    scale[MID_TIER] = MID_TIER_WINNINGS_SCALE;
+    scale[TOP_TIER] = TOP_TIER_WINNINGS_SCALE;
   }
 
   // Returns true if agent can place a bet in current betting stage.
@@ -88,7 +104,8 @@ contract PredictionMarket {
 
     group[msg.sender].amount = msg.value;
     group[msg.sender].predictions = predictions;
-    group[msg.sender].win = false;
+    group[msg.sender].tier = LOSER;
+    groupInfo.loserCount++;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
 
@@ -115,9 +132,14 @@ contract PredictionMarket {
       }
     }
 
-    if (totalErr <= WINNING_THRESHOLD * PREDICTIONS_PER_BET) {
-      group[msg.sender].win = true;
-      groupInfo.totalWinners++;
+    if (totalErr <= TOP_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
+      group[msg.sender].tier = TOP_TIER;
+      groupInfo.topTierCount++;
+      groupInfo.loserCount--;
+    } else if (totalErr <= MID_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
+      group[msg.sender].tier = MID_TIER;
+      groupInfo.midTierCount++;
+      groupInfo.loserCount--;
     }
   }
 
@@ -127,12 +149,14 @@ contract PredictionMarket {
 
     mapping(address => Bet) storage group = stageToGroup(CLAIMING);
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
+    Bet storage bet = group[msg.sender];
 
-    if (group[msg.sender].win) {
-      // As agent has won, total winners will not be 0.
-      uint256 reward = groupInfo.totalBetAmount.div(groupInfo.totalWinners);
-      msg.sender.transfer(reward);
-    }
+    uint256 denominator = groupInfo.loserCount +
+                          groupInfo.midTierCount * scale[MID_TIER] +
+                          groupInfo.topTierCount * scale[TOP_TIER];
+    uint256 reward = (scale[bet.tier].mul(groupInfo.totalBetAmount)).div(denominator);
+    msg.sender.transfer(reward);
+
     delete group[msg.sender];
     // TODO: agent removing itself from agent key set.
   }
@@ -156,7 +180,9 @@ contract PredictionMarket {
 
       agents.length = 0;
       claimingGroupInfo.totalBetAmount = 0;
-      claimingGroupInfo.totalWinners = 0;
+      claimingGroupInfo.loserCount = 0;
+      claimingGroupInfo.midTierCount = 0;
+      claimingGroupInfo.topTierCount = 0;
       claimingGroupInfo.consumption.length = 0;
 
       uint256 tmp = BETTING;

@@ -1,57 +1,62 @@
 const PredictionMarket = artifacts.require("PredictionMarket");
 
-contract("test: predictionMarket", async accounts => {
+STAGE_LENGTH = 24
+PREDICTIONS_PER_BET = 48
 
-  STAGE_LENGTH = 24
-  PREDICTIONS_PER_BET = 48
+contract("PredictionMarket one cycle", async accounts => {
 
   ORACLE = accounts[0];
-  AGENT1 = accounts[1];                  // winning agent
-  AGENT2 = accounts[2];                  // losing agent
-  AGENT1_BET_AMOUNT = 1;                 // 1 wei
-  AGENT2_BET_AMOUNT = 2;                 // 2 wei
+  AGENT1 = accounts[1]; // top tier agent
+  AGENT2 = accounts[2]; // mid tier agent
+  AGENT3 = accounts[3]; // losing agent
+
+  BET_AMOUNT = 300;
+  TOTAL_BET_AMOUNT = BET_AMOUNT * 3;
   FOLLOWING_GROUP_TOTAL_BET_AMOUNT = 0;  // total bet amount for following group
-  AGENT1_PREDICTIONS = [];               // within threshold
-  AGENT2_PREDICTIONS = [];               // outside threshold
-  AGENT1_PREDICTION = 550;
-  AGENT2_PREDICTION = 700;
+
+  AGENT1_REWARD = 500;
+  AGENT2_REWARD = 300;
+  AGENT3_REWARD = 100;
+
+  AGENT1_PREDICTIONS = [];
+  AGENT2_PREDICTIONS = [];
+  AGENT3_PREDICTIONS = [];
+  AGENT1_PREDICTION = 450;
+  AGENT2_PREDICTION = 400;
+  AGENT3_PREDICTION = 700;
   for (var i = 0; i < PREDICTIONS_PER_BET; i++) {
     AGENT1_PREDICTIONS.push(AGENT1_PREDICTION + i);
     AGENT2_PREDICTIONS.push(AGENT2_PREDICTION + i);
+    AGENT3_PREDICTIONS.push(AGENT3_PREDICTION + i);
   }
   ORACLE_CONSUMPTION = 500;
 
   it ('Updates total bet amount for current betting group', async () => {
     let pm = await PredictionMarket.deployed();
 
-    await pm.placeBet(AGENT1_PREDICTIONS, {from: AGENT1, value: AGENT1_BET_AMOUNT});
-    await pm.placeBet(AGENT2_PREDICTIONS, {from: AGENT2, value: AGENT2_BET_AMOUNT});
+    await pm.placeBet(AGENT1_PREDICTIONS, {from: AGENT1, value: BET_AMOUNT});
+    await pm.placeBet(AGENT2_PREDICTIONS, {from: AGENT2, value: BET_AMOUNT});
+    await pm.placeBet(AGENT3_PREDICTIONS, {from: AGENT3, value: BET_AMOUNT});
 
     const betting = await pm.BETTING.call();
     const bettingGroupInfo = await pm.stageToGroupInfo.call(betting);
     const totalBetAmount = bettingGroupInfo.totalBetAmount;
 
-    assert.equal(totalBetAmount.toNumber(), AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
+    assert.equal(totalBetAmount.toNumber(), TOTAL_BET_AMOUNT);
   });
 
   it ('Initialises agent\'s bet in group mapping', async () => {
     let pm = await PredictionMarket.deployed();
 
     const betting = await pm.BETTING.call();
-    const agentPredictions1 = await pm.getBetPredictionsFromStage.call(betting, {from: AGENT1});
-    const agentPredictions2 = await pm.getBetPredictionsFromStage.call(betting, {from: AGENT2});
+    const agentPredictions = await pm.getBetPredictionsFromStage.call(betting, {from: AGENT1});
 
-    const agentBet1 = await pm.group1.call(AGENT1);
-    const agentBet2 = await pm.group1.call(AGENT2);
+    const agentBet = await pm.group1.call(AGENT1);
 
-    assert.equal(agentBet1.amount.toNumber(), AGENT1_BET_AMOUNT);
-    assert.equal(agentBet2.amount.toNumber(), AGENT2_BET_AMOUNT);
-    assert.equal(agentPredictions1[0].toNumber(), AGENT1_PREDICTION);
-    assert.equal(agentPredictions1[47].toNumber(), AGENT1_PREDICTION + 47);
-    assert.equal(agentPredictions2[0].toNumber(), AGENT2_PREDICTION);
-    assert.equal(agentPredictions2[47].toNumber(), AGENT2_PREDICTION + 47);
-    assert.equal(agentBet1.win, false);
-    assert.equal(agentBet2.win, false);
+    assert.equal(agentBet.amount.toNumber(), BET_AMOUNT);
+    assert.equal(agentPredictions[0].toNumber(), AGENT1_PREDICTION);
+    assert.equal(agentPredictions[47].toNumber(), AGENT1_PREDICTION + 47);
+    assert.equal(agentBet.tier.toNumber(), 0);
   });
 
   it ('Oracle update should shift betting group to waiting group', async () => {
@@ -68,7 +73,7 @@ contract("test: predictionMarket", async accounts => {
     waitingGroupInfo = await pm.stageToGroupInfo.call(waiting);
 
     assert.equal(bettingGroupInfo.totalBetAmount.toNumber(), FOLLOWING_GROUP_TOTAL_BET_AMOUNT);
-    assert.equal(waitingGroupInfo.totalBetAmount.toNumber(), AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
+    assert.equal(waitingGroupInfo.totalBetAmount.toNumber(), TOTAL_BET_AMOUNT);
   });
 
   it ('Oracle update should shift waiting group to claiming group and put oracle data in group info', async () => {
@@ -83,7 +88,7 @@ contract("test: predictionMarket", async accounts => {
     const claimingGroupInfo = await pm.stageToGroupInfo.call(claiming);
     const claimingGroupOracleConsumption = await pm.getOracleConsumptionFromStage.call(claiming);
 
-    assert.equal(claimingGroupInfo.totalBetAmount.toNumber(), AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
+    assert.equal(claimingGroupInfo.totalBetAmount.toNumber(), TOTAL_BET_AMOUNT);
     assert.equal(claimingGroupOracleConsumption[0].toNumber(), ORACLE_CONSUMPTION);
     assert.equal(claimingGroupOracleConsumption[47].toNumber(), ORACLE_CONSUMPTION + 47);
   });
@@ -91,13 +96,13 @@ contract("test: predictionMarket", async accounts => {
   it ('History of predictions and oracle consumptions are recorded correctly', async () => {
     let pm = await PredictionMarket.deployed();
 
-    const agentPredictions1 = await pm.getPredictions.call(2, {from: AGENT1}); // Agent predictions from day before
+    const agentPredictions = await pm.getPredictions.call(2, {from: AGENT1}); // Agent predictions from day before
     const oracleConsumptions = await pm.getOracleConsumptions.call(2); // Oracle consumptions from day before
 
     assert.equal(oracleConsumptions[0].toNumber(), ORACLE_CONSUMPTION);
     assert.equal(oracleConsumptions[47].toNumber(), ORACLE_CONSUMPTION + 47);
-    assert.equal(agentPredictions1[0].toNumber(), AGENT1_PREDICTION);
-    assert.equal(agentPredictions1[47].toNumber(), AGENT1_PREDICTION + 47);
+    assert.equal(agentPredictions[0].toNumber(), AGENT1_PREDICTION);
+    assert.equal(agentPredictions[47].toNumber(), AGENT1_PREDICTION + 47);
   })
 
   it ('Agent calling rank should set win to true if within threshold', async () => {
@@ -105,24 +110,29 @@ contract("test: predictionMarket", async accounts => {
 
     await pm.rank({from: AGENT1});
     await pm.rank({from: AGENT2});
+    await pm.rank({from: AGENT3});
 
     const agentBet1 = await pm.group1.call(AGENT1);
     const agentBet2 = await pm.group1.call(AGENT2);
+    const agentBet3 = await pm.group1.call(AGENT3);
 
-    assert.equal(agentBet1.win, true);
-    assert.equal(agentBet2.win, false);
+    assert.equal(agentBet1.tier.toNumber(), 2);
+    assert.equal(agentBet2.tier.toNumber(), 1);
+    assert.equal(agentBet3.tier.toNumber(), 0);
   });
 
-  it ('Claiming group info should have correct totalWinners', async () => {
+  it ('Claiming group info should have correct counts', async () => {
     let pm = await PredictionMarket.deployed();
 
     const claiming = await pm.CLAIMING.call();
     const claimingGroupInfo = await pm.stageToGroupInfo.call(claiming);
 
-    assert.equal(claimingGroupInfo.totalWinners.toNumber(), 1);
+    assert.equal(claimingGroupInfo.topTierCount.toNumber(), 1);
+    assert.equal(claimingGroupInfo.midTierCount.toNumber(), 1);
+    assert.equal(claimingGroupInfo.loserCount.toNumber(), 1);
   });
 
-  it ('Agent can claim winnings if their bet won', async () => {
+  it ('Agent claim winnings based on tier correctly', async () => {
     let pm = await PredictionMarket.deployed();
 
     // CLAIMING: pass STAGE_LENGTH periods to allow agents to claim
@@ -131,14 +141,17 @@ contract("test: predictionMarket", async accounts => {
     }
 
     const contractBalance1 = await web3.eth.getBalance(pm.address);
-    await pm.claimWinnings({from: AGENT2});
-    const contractBalance2 = await web3.eth.getBalance(pm.address);
     await pm.claimWinnings({from: AGENT1});
+    const contractBalance2 = await web3.eth.getBalance(pm.address);
+    await pm.claimWinnings({from: AGENT2});
     const contractBalance3 = await web3.eth.getBalance(pm.address);
+    await pm.claimWinnings({from: AGENT3});
+    const contractBalance4 = await web3.eth.getBalance(pm.address);
 
-    assert.equal(contractBalance1, AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
-    assert.equal(contractBalance2, AGENT1_BET_AMOUNT + AGENT2_BET_AMOUNT);
-    assert.equal(contractBalance3, 0);
+    assert.equal(contractBalance1, TOTAL_BET_AMOUNT);
+    assert.equal(contractBalance2, TOTAL_BET_AMOUNT - AGENT1_REWARD);
+    assert.equal(contractBalance3, TOTAL_BET_AMOUNT - AGENT1_REWARD - AGENT2_REWARD);
+    assert.equal(contractBalance4, TOTAL_BET_AMOUNT - AGENT1_REWARD - AGENT2_REWARD - AGENT3_REWARD);
   });
 
   it ('Oracle update should shift claiming group to betting group and clear', async () => {
@@ -155,7 +168,9 @@ contract("test: predictionMarket", async accounts => {
 
     assert.equal(bettingGroupInfo.totalBetAmount.toNumber(), 0);
     assert.equal(bettingGroupOracleConsumption.length, 0);
-    assert.equal(bettingGroupInfo.totalWinners.toNumber(), 0);
+    assert.equal(bettingGroupInfo.topTierCount.toNumber(), 0);
+    assert.equal(bettingGroupInfo.midTierCount.toNumber(), 0);
+    assert.equal(bettingGroupInfo.loserCount.toNumber(), 0);
   });
 
 });
