@@ -1,7 +1,7 @@
 from web3 import Web3
 
 # Needs to match address of contract migrated to ganache (set manually)
-PREDICTION_MARKET = '0x47d9C597dAC2396503eaD2E62ADCba23eF5F5397'
+PREDICTION_MARKET = '0x201958077901df6d7D32310D80959e514926aEB4'
 
 # Account to be used by oracle, for testing, migrations etc.
 ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
