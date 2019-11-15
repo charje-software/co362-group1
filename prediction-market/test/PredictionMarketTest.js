@@ -35,9 +35,13 @@ contract("PredictionMarket one cycle", async accounts => {
   }
   ORACLE_CONSUMPTION = 500;
 
-  it ('Updates total bet amount for current betting group', async () => {
-    let pm = await PredictionMarket.deployed();
+  let pm
 
+  beforeEach('setup contract', async function () {
+    pm = await PredictionMarket.deployed();
+  });
+
+  it ('Updates total bet amount for current betting group', async () => {
     await pm.placeBet(AGENT1_PREDICTIONS, {from: AGENT1, value: BET_AMOUNT});
     await pm.placeBet(AGENT2_PREDICTIONS, {from: AGENT2, value: BET_AMOUNT});
     await pm.placeBet(AGENT3_PREDICTIONS, {from: AGENT3, value: BET_AMOUNT});
@@ -50,8 +54,6 @@ contract("PredictionMarket one cycle", async accounts => {
   });
 
   it ('Initialises agent\'s bet in group mapping', async () => {
-    let pm = await PredictionMarket.deployed();
-
     const betting = await pm.BETTING.call();
     const agentPredictions = await pm.getBetPredictionsFromStage.call(betting, {from: AGENT1});
 
@@ -64,8 +66,6 @@ contract("PredictionMarket one cycle", async accounts => {
   });
 
   it ('Oracle update should shift betting group to waiting group', async () => {
-    let pm = await PredictionMarket.deployed();
-
     // Pass BETTING and progress to WAITING
     for (var i = 0; i < STAGE_LENGTH * 2; i++) {
       await pm.updateConsumption(0, {from: ORACLE});
@@ -81,8 +81,6 @@ contract("PredictionMarket one cycle", async accounts => {
   });
 
   it ('Oracle update should shift waiting group to claiming group and put oracle data in group info', async () => {
-    let pm = await PredictionMarket.deployed();
-
     // Pass WAITING and progress to CLAIMING
     for (var i = 0; i < STAGE_LENGTH * 2; i++) {
       await pm.updateConsumption(ORACLE_CONSUMPTION + i, {from: ORACLE});
@@ -98,8 +96,6 @@ contract("PredictionMarket one cycle", async accounts => {
   });
 
   it ('History of predictions and oracle consumptions are recorded correctly', async () => {
-    let pm = await PredictionMarket.deployed();
-
     const agentPredictions = await pm.getPredictions.call(2, {from: AGENT1}); // Agent predictions from day before
     const oracleConsumptions = await pm.getOracleConsumptions.call(2); // Oracle consumptions from day before
 
@@ -110,8 +106,6 @@ contract("PredictionMarket one cycle", async accounts => {
   })
 
   it ('Agent calling rank should set win to true if within threshold', async () => {
-    let pm = await PredictionMarket.deployed();
-
     await pm.rank({from: AGENT1});
     await pm.rank({from: AGENT2});
     await pm.rank({from: AGENT3});
@@ -126,8 +120,6 @@ contract("PredictionMarket one cycle", async accounts => {
   });
 
   it ('Claiming group info should have correct counts', async () => {
-    let pm = await PredictionMarket.deployed();
-
     const claiming = await pm.CLAIMING.call();
     const claimingGroupInfo = await pm.stageToGroupInfo.call(claiming);
 
@@ -137,8 +129,6 @@ contract("PredictionMarket one cycle", async accounts => {
   });
 
   it ('Agent claim winnings based on tier correctly', async () => {
-    let pm = await PredictionMarket.deployed();
-
     // CLAIMING: pass STAGE_LENGTH periods to allow agents to claim
     for (var i = 0; i < STAGE_LENGTH; i++) {
       await pm.updateConsumption(ORACLE_CONSUMPTION, {from: ORACLE});
@@ -159,8 +149,6 @@ contract("PredictionMarket one cycle", async accounts => {
   });
 
   it ('Oracle update should shift claiming group to betting group and clear', async () => {
-    let pm = await PredictionMarket.deployed();
-
     // Pass CLAIMING and progress to BETTING
     for (var i = 0; i < STAGE_LENGTH; i++) {
       await pm.updateConsumption(0, {from: ORACLE});
