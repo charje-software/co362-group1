@@ -1,12 +1,16 @@
 from web3 import Web3
 
 # Needs to match address of contract migrated to ganache (set manually)
-PREDICTION_MARKET = '0xB2aCEB6591fe5C9CB2Ad3f548D82dfF123E2B56b'
+PREDICTION_MARKET = '0x47d9C597dAC2396503eaD2E62ADCba23eF5F5397'
+
+# Account to be used by oracle, for testing, migrations etc.
+ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
 
 # Hashes of methods in prediction market contract
-PLACE_BET = '0x10962d45'           # placeBet(uint256[48])
-RANK = '0x934209ce'                # rank()
-CLAIM_WINNINGS = '0xb401faf1'      # claimWinnings()
+PLACE_BET = '0x10962d45'  # placeBet(uint256[48])
+RANK = '0x934209ce'  # rank()
+CLAIM_WINNINGS = '0xb401faf1'  # claimWinnings()
+UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
 UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
 
 # how many predictions to make per bet
@@ -30,6 +34,27 @@ class PredictionMarketAdapter:
     def __init__(self, address=PREDICTION_MARKET, rpc_url=RPC_URL):
         self.w3 = Web3(Web3.HTTPProvider(rpc_url))
         self.address = address
+        self.partial_contract = self.w3.eth.contract(
+            address=address,
+            abi=[{
+                "constant": True,
+                "inputs": [
+                    {
+                        "name": "dayOffset",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getOracleConsumptions",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint256[48]"
+                    }
+                ],
+                "payable": False,
+                "stateMutability": "view",
+                "type": "function"
+            }])
 
     def get_call_data(self, function_hash, params):
         """
@@ -100,9 +125,8 @@ class PredictionMarketAdapter:
             {'to': self.address, 'from': oracle_account,
              'data': self.get_call_data(UPDATE_CONSUMPTION, [format(updated_consumption, 'x')])})
 
-    def get_latest_aggregate_consumption(self):
+    def get_latest_aggregate_consumptions(self):
         """
-        Calls something to get latest aggregate consumption
+        Calls the PredictionMarket smart contract to fetch the latest NUM_PREDICTIONS oracle values.
         """
-        # TODO: implement
-        pass
+        return self.partial_contract.functions.getOracleConsumptions(2).call()

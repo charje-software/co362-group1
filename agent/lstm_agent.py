@@ -5,7 +5,7 @@ import math
 from tensorflow.keras.models import load_model
 
 from agent import Agent
-from prediction_market_adapter import NUM_PREDICTIONS
+from prediction_market_adapter import NUM_PREDICTIONS, ACCOUNT_0
 
 
 class LstmAgent(Agent):
@@ -21,7 +21,7 @@ class LstmAgent(Agent):
 
     NUM_HISTORIC_DATA = 144
 
-    def __init__(self, account, model_file_name="./models/LSTMunivariate.h5"):
+    def __init__(self, account=ACCOUNT_0, model_file_name="./models/LSTMunivariate.h5"):
         super(LstmAgent, self).__init__(account)
         self.predictions_count = 0
         self.model = load_model(model_file_name)
@@ -51,4 +51,4 @@ class LstmAgent(Agent):
         return list(map(int, predictions))
 
     def update_aggregate_data(self):
-        self.history.append(self.prediction_market.get_latest_aggregate_consumption())
+        self.history += self.prediction_market.get_latest_aggregate_consumptions()

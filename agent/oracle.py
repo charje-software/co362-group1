@@ -1,7 +1,7 @@
 import requests
 import time
 
-from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS
+from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, ACCOUNT_0
 
 
 class Oracle:
@@ -14,7 +14,6 @@ class Oracle:
 
     '''
 
-    ACCOUNT = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
     DATA_URL = 'http://146.169.40.141/oracle.json'
     DATA_SIZE = 1488
 
@@ -22,10 +21,11 @@ class Oracle:
         self.time_index = time_index
         self.prediction_market = PredictionMarketAdapter()
         self.logging = logging
+        self.account = ACCOUNT_0
 
     def update_consumption(self):
         updated_consumption, datetime = self.query_live_data()
-        self.prediction_market.update_consumption(Oracle.ACCOUNT, int(updated_consumption))
+        self.prediction_market.update_consumption(self.account, int(updated_consumption))
         if self.logging:
             print('Oracle  : consumption for period ending ({0}): {1} kW.'
                   .format(datetime, updated_consumption))

@@ -1,7 +1,7 @@
 import time
 from colr import color
 
-from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS
+from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, ACCOUNT_0
 
 
 class Agent:
@@ -16,7 +16,7 @@ class Agent:
     DEFAULT_BETTING_AMOUNT = 1
     DEFAULT_PREDICTION = 700
 
-    def __init__(self, account, logging=True):
+    def __init__(self, account=ACCOUNT_0, logging=True):
         self.account = account
         self.prediction_market = PredictionMarketAdapter()
         self.logging = logging
