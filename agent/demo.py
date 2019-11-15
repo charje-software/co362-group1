@@ -1,12 +1,13 @@
-import pandas as pd
 import time
+import pandas as pd
 
+from ar_agent import ArAgent
 from oracle import Oracle
 from agent import Agent
-from ar_agent import ArAgent
 
 START = pd.to_datetime('2014-01-28 00:00:00')
-END = pd.to_datetime('2014-02-28 00:00:00')
+END = pd.to_datetime('2014-02-01 23:30:00')
+# END = pd.to_datetime('2014-02-27 23:30:00')
 PERIOD_LENGTH = 0.002
 
 ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
@@ -27,26 +28,45 @@ oracle = Oracle()
 
 def is_betting_time(date_time):
     return date_time.minute == 0 and date_time.hour == 0 \
-                and date_time < END - pd.Timedelta('2 days')
+           and date_time <= END - pd.Timedelta('2 days')
 
 
 def is_ranking_time(date_time):
     return date_time.minute == 0 and date_time.hour == 0 \
-                and date_time > START + pd.Timedelta('2 days')
+           and date_time >= START + pd.Timedelta('2 days')
 
 
 def is_collecting_time(date_time):
     return date_time.minute == 0 and date_time.hour == 12 \
-                and date_time > START + pd.Timedelta('2 days')
+           and date_time > START + pd.Timedelta('2 days')
 
 
 def is_midnight_or_noon(date_time):
     return date_time.minute == 0 and (date_time.hour == 0 or date_time.hour == 12)
 
 
+def is_new_day(date_time):
+    return date_time.minute == 0 and date_time.hour == 0 \
+           and date_time >= START + pd.Timedelta('1 days')
+
+
+def is_new_period(date_time):
+    return date_time > START and date_time.minute % 30 == 0
+
+
 if __name__ == "__main__":
-    rounds = 0
     for date_time in pd.date_range(start=START, end=END, freq='30min'):
+        if is_new_period(date_time):
+            oracle.update_consumption()
+            agent1.update_private_data()
+            agent2.update_private_data()
+            agent3.update_private_data()
+
+        if is_new_day(date_time):
+            agent1.update_aggregate_data()
+            agent2.update_aggregate_data()
+            agent3.update_aggregate_data()
+
         if (is_midnight_or_noon(date_time)):
             print('-' * 59)
             print(' ' * 20 + str(date_time))
@@ -74,11 +94,3 @@ if __name__ == "__main__":
             agent3.collect_reward()
 
         time.sleep(PERIOD_LENGTH / 4.0)
-
-        oracle.update_consumption()
-        agent1.update_private_data()
-        agent1.update_aggregate_data()
-        agent2.update_private_data()
-        agent2.update_aggregate_data()
-        agent3.update_private_data()
-        agent3.update_aggregate_data()

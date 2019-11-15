@@ -18,15 +18,17 @@ class MetricsCalculator:
 
     def calc_metrics(self, agent, model_name):
         predictions = []
-        with mock.patch('agent.PredictionMarketAdapter.get_latest_aggregate_consumption') \
-                as mock_get_latest_aggregate_consumption:
+        with mock.patch('agent.PredictionMarketAdapter.get_latest_aggregate_consumptions') \
+                as mock_get_latest_aggregate_consumptions:
             for i in range(len(self.actual)//48):
                 # get predictions for 48 values at a time from agent
                 predictions += agent.predict(NUM_PREDICTIONS)
                 for j in range(48):
                     agent.update_private_data()
-                    mock_get_latest_aggregate_consumption.return_value = self.actual[i * 48 + j]
-                    agent.update_aggregate_data()
+                    
+                mock_get_latest_aggregate_consumptions.return_value = \
+                        self.actual[i * 48 : (i+1) * 48]
+                agent.update_aggregate_data()
 
         # calculate MSE
         assert(len(predictions) == len(self.actual))

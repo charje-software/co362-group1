@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 
 from agent import Agent
 from meter import Meter
-from prediction_market_adapter import NUM_PREDICTIONS
+from prediction_market_adapter import NUM_PREDICTIONS, ACCOUNT_0
 
 
 class LstmMultiAgent(Agent):
@@ -24,7 +24,7 @@ class LstmMultiAgent(Agent):
     NUM_HISTORIC_DATA = 144
 
     def __init__(self, model_file_name, household_name, normalise_values,
-                 account):
+                 account=ACCOUNT_0):
         super(LstmMultiAgent, self).__init__(account)
         self.predictions_count = 0
         self.model = load_model(model_file_name)
@@ -66,7 +66,7 @@ class LstmMultiAgent(Agent):
         return list(map(int, predictions))
 
     def update_aggregate_data(self):
-        self.history.append(self.prediction_market.get_latest_aggregate_consumption())
+        self.history += self.prediction_market.get_latest_aggregate_consumptions()
 
     def update_private_data(self):
         self.my_history.append(self.meter.get_latest_consumption())

@@ -2,6 +2,7 @@ import unittest
 from unittest import TestCase, mock
 
 from oracle import Oracle
+from prediction_market_adapter import ACCOUNT_0
 
 
 class TestOracle(TestCase):
@@ -46,9 +47,9 @@ class TestOracle(TestCase):
             oracle.update_consumption()
 
             self.assertEqual(mock_prediction_market.update_consumption.mock_calls, [
-                mock.call(Oracle.ACCOUNT, int(TestOracle.JSON_TEST_DATA['1']['consumption'])),
-                mock.call(Oracle.ACCOUNT, int(TestOracle.JSON_TEST_DATA['2']['consumption'])),
-                mock.call(Oracle.ACCOUNT, int(TestOracle.JSON_TEST_DATA['3']['consumption']))
+                mock.call(ACCOUNT_0, int(TestOracle.JSON_TEST_DATA['1']['consumption'])),
+                mock.call(ACCOUNT_0, int(TestOracle.JSON_TEST_DATA['2']['consumption'])),
+                mock.call(ACCOUNT_0, int(TestOracle.JSON_TEST_DATA['3']['consumption']))
             ])
 
 
