@@ -4,6 +4,8 @@ import pandas as pd
 from ar_agent import ArAgent
 from oracle import Oracle
 from agent import Agent
+from lstm_agent import LstmAgent
+from lstm_multi_agent import LstmMultiAgent
 
 START = pd.to_datetime('2014-01-28 00:00:00')
 END = pd.to_datetime('2014-02-01 23:30:00')
@@ -20,9 +22,14 @@ ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
             '0x3FFA1EA78d44488c43DE84B6D03C3b6C0DC7248E',
             '0x0A058293Feb18aedbca8c2169947381d2e71F424']
 
-agent1 = Agent(ACCOUNTS[0])
-agent2 = Agent(ACCOUNTS[1])
-agent3 = Agent(ACCOUNTS[2])
+agent1 = ArAgent(ACCOUNTS[1])
+agent2 = LstmAgent(ACCOUNTS[2])
+household_2_normalise_values = [1.16123236e+03, 4.24041018e+02, 2.47572234e-01, 2.41049693e-01]
+agent3 = LstmMultiAgent(
+                account=ACCOUNTS[3],
+                model_file_name='./models/LSTMmultivariate.h5',
+                household_name='MAC000002',
+                normalise_values=household_2_normalise_values)
 oracle = Oracle()
 
 
