@@ -1,5 +1,4 @@
 import unittest
-
 from unittest import TestCase, mock
 
 from oracle import Oracle
