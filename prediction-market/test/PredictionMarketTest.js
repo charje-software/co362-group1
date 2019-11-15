@@ -14,6 +14,10 @@ contract("PredictionMarket one cycle", async accounts => {
   TOTAL_BET_AMOUNT = BET_AMOUNT * 3;
   FOLLOWING_GROUP_TOTAL_BET_AMOUNT = 0;  // total bet amount for following group
 
+  BASE_WINNING_SCALE = 1;
+  MID_TIER_WINNING_SCALE = 3;
+  TOP_TIER_WINNING_SCALE = 5;
+
   AGENT1_REWARD = 500;
   AGENT2_REWARD = 300;
   AGENT3_REWARD = 100;
@@ -56,7 +60,7 @@ contract("PredictionMarket one cycle", async accounts => {
     assert.equal(agentBet.amount.toNumber(), BET_AMOUNT);
     assert.equal(agentPredictions[0].toNumber(), AGENT1_PREDICTION);
     assert.equal(agentPredictions[47].toNumber(), AGENT1_PREDICTION + 47);
-    assert.equal(agentBet.tier.toNumber(), 0);
+    assert.equal(agentBet.winningScale.toNumber(), BASE_WINNING_SCALE);
   });
 
   it ('Oracle update should shift betting group to waiting group', async () => {
@@ -116,9 +120,9 @@ contract("PredictionMarket one cycle", async accounts => {
     const agentBet2 = await pm.group1.call(AGENT2);
     const agentBet3 = await pm.group1.call(AGENT3);
 
-    assert.equal(agentBet1.tier.toNumber(), 2);
-    assert.equal(agentBet2.tier.toNumber(), 1);
-    assert.equal(agentBet3.tier.toNumber(), 0);
+    assert.equal(agentBet1.winningScale.toNumber(), TOP_TIER_WINNING_SCALE);
+    assert.equal(agentBet2.winningScale.toNumber(), MID_TIER_WINNING_SCALE);
+    assert.equal(agentBet3.winningScale.toNumber(), BASE_WINNING_SCALE);
   });
 
   it ('Claiming group info should have correct counts', async () => {
@@ -129,7 +133,7 @@ contract("PredictionMarket one cycle", async accounts => {
 
     assert.equal(claimingGroupInfo.topTierCount.toNumber(), 1);
     assert.equal(claimingGroupInfo.midTierCount.toNumber(), 1);
-    assert.equal(claimingGroupInfo.loserCount.toNumber(), 1);
+    assert.equal(claimingGroupInfo.baseCount.toNumber(), 1);
   });
 
   it ('Agent claim winnings based on tier correctly', async () => {
@@ -170,7 +174,7 @@ contract("PredictionMarket one cycle", async accounts => {
     assert.equal(bettingGroupOracleConsumption.length, 0);
     assert.equal(bettingGroupInfo.topTierCount.toNumber(), 0);
     assert.equal(bettingGroupInfo.midTierCount.toNumber(), 0);
-    assert.equal(bettingGroupInfo.loserCount.toNumber(), 0);
+    assert.equal(bettingGroupInfo.baseCount.toNumber(), 0);
   });
 
 });

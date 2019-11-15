@@ -10,17 +10,11 @@ contract PredictionMarket {
   uint256 public WAITING = 2;
   uint256 public CLAIMING = 3;
 
-  // Tier enums
-  uint256 public LOSER = 0;
-  uint256 public MID_TIER = 1;
-  uint256 public TOP_TIER = 2;
-
   uint256 public TOP_TIER_THRESHOLD = 75;    // Threshold for top tier bet winners
   uint256 public MID_TIER_THRESHOLD = 150;   // Threshold for mid tier bet winners
-  uint256 public TOP_TIER_WINNINGS_SCALE = 5; // Scaled winnings for top tier winners
-  uint256 public MID_TIER_WINNINGS_SCALE = 3; // Scaled winnings for mid tier winners
-  uint256 public LOSER_WINNINGS_SCALE = 1;   // Base winnings for losers
-  mapping(uint256 => uint256) scale;
+  uint256 public TOP_TIER_WINNING_SCALE = 5; // Scaled winnings for top tier winners
+  uint256 public MID_TIER_WINNING_SCALE = 3; // Scaled winnings for mid tier winners
+  uint256 public BASE_WINNING_SCALE = 1;     // Base winnings scale
 
   uint256 public PREDICTIONS_PER_BET = 48;
   uint256 public STAGE_LENGTH = 24; // Number of time periods within a stage
@@ -54,14 +48,14 @@ contract PredictionMarket {
   struct Bet {
     uint256 amount;
     uint256[] predictions;
-    uint256 tier;
+    uint256 winningScale;
   }
 
   struct GroupInfo {
     address[] agents;       // List of agents in the group
     uint256 topTierCount;
     uint256 midTierCount;
-    uint256 loserCount;
+    uint256 baseCount;
     uint256 totalBetAmount;
     uint256[] consumption;    // Oracle-provided actual aggregate demand
   }
@@ -70,9 +64,6 @@ contract PredictionMarket {
     stageToGroupNumber[BETTING] = 1;
     stageToGroupNumber[WAITING] = 2;
     stageToGroupNumber[CLAIMING] = 3;
-    scale[LOSER] = LOSER_WINNINGS_SCALE;
-    scale[MID_TIER] = MID_TIER_WINNINGS_SCALE;
-    scale[TOP_TIER] = TOP_TIER_WINNINGS_SCALE;
   }
 
   // Returns true if agent can place a bet in current betting stage.
@@ -104,8 +95,8 @@ contract PredictionMarket {
 
     group[msg.sender].amount = msg.value;
     group[msg.sender].predictions = predictions;
-    group[msg.sender].tier = LOSER;
-    groupInfo.loserCount++;
+    group[msg.sender].winningScale = BASE_WINNING_SCALE;
+    groupInfo.baseCount++;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
 
@@ -133,13 +124,13 @@ contract PredictionMarket {
     }
 
     if (totalErr <= TOP_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
-      group[msg.sender].tier = TOP_TIER;
+      group[msg.sender].winningScale = TOP_TIER_WINNING_SCALE;
       groupInfo.topTierCount++;
-      groupInfo.loserCount--;
+      groupInfo.baseCount--;
     } else if (totalErr <= MID_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
-      group[msg.sender].tier = MID_TIER;
+      group[msg.sender].winningScale = MID_TIER_WINNING_SCALE;
       groupInfo.midTierCount++;
-      groupInfo.loserCount--;
+      groupInfo.baseCount--;
     }
   }
 
@@ -151,10 +142,10 @@ contract PredictionMarket {
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
     Bet storage bet = group[msg.sender];
 
-    uint256 denominator = groupInfo.loserCount +
-                          groupInfo.midTierCount * scale[MID_TIER] +
-                          groupInfo.topTierCount * scale[TOP_TIER];
-    uint256 reward = (scale[bet.tier].mul(groupInfo.totalBetAmount)).div(denominator);
+    uint256 denominator = groupInfo.baseCount +
+                          groupInfo.midTierCount * MID_TIER_WINNING_SCALE +
+                          groupInfo.topTierCount * TOP_TIER_WINNING_SCALE;
+    uint256 reward = (bet.winningScale.mul(groupInfo.totalBetAmount)).div(denominator);
     msg.sender.transfer(reward);
 
     delete group[msg.sender];
@@ -180,7 +171,7 @@ contract PredictionMarket {
 
       agents.length = 0;
       claimingGroupInfo.totalBetAmount = 0;
-      claimingGroupInfo.loserCount = 0;
+      claimingGroupInfo.baseCount = 0;
       claimingGroupInfo.midTierCount = 0;
       claimingGroupInfo.topTierCount = 0;
       claimingGroupInfo.consumption.length = 0;
