@@ -23,7 +23,7 @@ class ArAgent(Agent):
     def predict(self, n):
         # need to predict all starting from START, but only return last n
         predictions = self.model.predict(start=ArAgent.START,
-                                         end=ArAgent.START+self.predictions_count+(n-1),
+                                         end=ArAgent.START+self.predictions_count+(n),
                                          dynamic=False)
         self.predictions_count += n
         return list(map(int, predictions[-n:]))
