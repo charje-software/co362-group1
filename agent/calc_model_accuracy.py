@@ -2,13 +2,14 @@ from unittest import mock
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from ar_agent import ArAgent
-from lstm_agent import LstmAgent
-from lstm_multi_agent import LstmMultiAgent
-from prediction_market_adapter import NUM_PREDICTIONS
 from sklearn.metrics import mean_squared_error
 
 from agent import Agent
+from ar_agent import ArAgent
+from ar_retrain_agent import ArRetrainAgent
+from lstm_agent import LstmAgent
+from lstm_multi_agent import LstmMultiAgent
+from prediction_market_adapter import NUM_PREDICTIONS
 
 
 class MetricsCalculator:
@@ -48,6 +49,7 @@ if __name__ == "__main__":
 
     metrics_calculator.calc_metrics(Agent(account='dummy'), 'default')
     metrics_calculator.calc_metrics(ArAgent(account='dummy'), 'ar_model')
+    metrics_calculator.calc_metrics(ArRetrainAgent(account='dummy'), 'ar_retrain_model')
     metrics_calculator.calc_metrics(LstmAgent(account='dummy'), 'lstm_model')
 
     household_2_normalise_values = [1.16123236e+03, 4.24041018e+02, 2.47572234e-01, 2.41049693e-01]
