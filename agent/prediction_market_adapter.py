@@ -1,7 +1,11 @@
 from web3 import Web3
 
 # Needs to match address of contract migrated to ganache (set manually)
+<<<<<<< HEAD
 PREDICTION_MARKET = '0x201958077901df6d7D32310D80959e514926aEB4'
+=======
+PREDICTION_MARKET = '0x2FFf6BaacCd0bba4593585FDd3BE1abb9150bFf5'
+>>>>>>> Add get_winning_scale to PredictionMarketAdapter
 
 # Account to be used by oracle, for testing, migrations etc.
 ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
@@ -54,6 +58,24 @@ class PredictionMarketAdapter:
                 "payable": False,
                 "stateMutability": "view",
                 "type": "function"
+            }, {
+                "constant": True,
+                "inputs": [
+                    {
+                        "name": "dayOffset",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getBetWinningScale",
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "payable": False,
+                "stateMutability": "view",
+                "type": "function"
             }])
 
     def get_call_data(self, function_hash, params):
@@ -98,6 +120,15 @@ class PredictionMarketAdapter:
         """
         self.w3.eth.sendTransaction({'to': self.address, 'from': agent_account,
                                      'data': self.get_call_data(RANK, [])})
+    
+    def get_winning_scale(self, agent_account):
+        """
+        Calls the PredictionMarket smart contract to get winning scale of latest ranked prediction.
+
+        Args:
+            agent_account: The agent's account on the blockchain.
+        """
+        return self.partial_contract.functions.getBetWinningScale(3).call()
 
     def transfer_reward(self, agent_account):
         """
