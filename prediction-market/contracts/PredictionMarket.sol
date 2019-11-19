@@ -94,13 +94,14 @@ contract PredictionMarket {
     GroupInfo storage groupInfo = stageToGroupInfo[BETTING];
 
     group[msg.sender].amount = msg.value;
+    history[msg.sender][currDay + 1].amount = msg.value;
     group[msg.sender].predictions = predictions;
+    history[msg.sender][currDay + 1].predictions = predictions;
     group[msg.sender].winningScale = BASE_WINNING_SCALE;
+    history[msg.sender][currDay + 1].winningScale = BASE_WINNING_SCALE;
     groupInfo.baseCount++;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
-
-    history[msg.sender][currDay + 1].predictions = predictions;
   }
 
   // Called by betting agent to rank themselves. Sets `win` to true if
@@ -125,10 +126,12 @@ contract PredictionMarket {
 
     if (totalErr <= TOP_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
       group[msg.sender].winningScale = TOP_TIER_WINNING_SCALE;
+      history[msg.sender][currDay - 1].winningScale = TOP_TIER_WINNING_SCALE;
       groupInfo.topTierCount++;
       groupInfo.baseCount--;
     } else if (totalErr <= MID_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
       group[msg.sender].winningScale = MID_TIER_WINNING_SCALE;
+      history[msg.sender][currDay - 1].winningScale = MID_TIER_WINNING_SCALE;
       groupInfo.midTierCount++;
       groupInfo.baseCount--;
     }

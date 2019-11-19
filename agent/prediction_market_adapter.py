@@ -128,7 +128,7 @@ class PredictionMarketAdapter:
         Args:
             agent_account: The agent's account on the blockchain.
         """
-        return self.partial_contract.functions.getBetWinningScale(3).call()
+        return self.partial_contract.functions.getBetWinningScale(2).call()
 
     def transfer_reward(self, agent_account):
         """

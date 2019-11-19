@@ -110,13 +110,13 @@ contract("PredictionMarket one cycle", async accounts => {
     await pm.rank({from: AGENT2});
     await pm.rank({from: AGENT3});
 
-    const agentBet1 = await pm.group1.call(AGENT1);
-    const agentBet2 = await pm.group1.call(AGENT2);
-    const agentBet3 = await pm.group1.call(AGENT3);
+    const agentWinningScale1 = await pm.getBetWinningScale.call(2, {from: AGENT1});
+    const agentWinningScale2 = await pm.getBetWinningScale.call(2, {from: AGENT2});
+    const agentWinningScale3 = await pm.getBetWinningScale.call(2, {from: AGENT3});
 
-    assert.equal(agentBet1.winningScale.toNumber(), TOP_TIER_WINNING_SCALE);
-    assert.equal(agentBet2.winningScale.toNumber(), MID_TIER_WINNING_SCALE);
-    assert.equal(agentBet3.winningScale.toNumber(), BASE_WINNING_SCALE);
+    assert.equal(agentWinningScale1.toNumber(), TOP_TIER_WINNING_SCALE);
+    assert.equal(agentWinningScale2.toNumber(), MID_TIER_WINNING_SCALE);
+    assert.equal(agentWinningScale3.toNumber(), BASE_WINNING_SCALE);
   });
 
   it ('Claiming group info should have correct counts', async () => {
