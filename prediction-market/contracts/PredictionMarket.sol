@@ -12,15 +12,15 @@ contract PredictionMarket {
 
   uint256 public TOP_TIER_THRESHOLD = 75;    // Threshold for top tier bet winners
   uint256 public MID_TIER_THRESHOLD = 150;   // Threshold for mid tier bet winners
-  uint256 public TOP_TIER_WINNING_SCALE = 5; // Scaled winnings for top tier winners
-  uint256 public MID_TIER_WINNING_SCALE = 3; // Scaled winnings for mid tier winners
-  uint256 public BASE_WINNING_SCALE = 1;     // Base winnings scale
+  uint256 public TOP_TIER_WINNING_SCALE = 3; // Scaled winnings for top tier winners
+  uint256 public MID_TIER_WINNING_SCALE = 1; // Scaled winnings for mid tier winners
+  uint256 public BASE_WINNING_SCALE = 0;     // Base winnings scale
 
-  uint256 public PREDICTIONS_PER_BET = 48;
-  uint256 public STAGE_LENGTH = 24; // Number of time periods within a stage
+  uint256 public PREDICTIONS_PER_BET = 48;   // Number of predictions within a bet
+  uint256 public STAGE_LENGTH = 24;          // Number of time periods within a stage
 
-  uint256 public currTimePeriod = 0; // Index of current period within 24 hour period
-  uint256 public currDay = 0;        // Current day relative to start of contract life
+  uint256 public currTimePeriod = 0;         // Index of current period within 24 hour period
+  uint256 public currDay = 0;                // Current day relative to start of contract life
 
   // Groups: mapping of agent's addresses to their bets.
   mapping(address => Bet) public group1;
@@ -52,7 +52,7 @@ contract PredictionMarket {
   }
 
   struct GroupInfo {
-    address[] agents;       // List of agents in the group
+    address[] agents;         // List of agents in the group
     uint256 topTierCount;
     uint256 midTierCount;
     uint256 baseCount;
@@ -142,7 +142,7 @@ contract PredictionMarket {
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
     Bet storage bet = group[msg.sender];
 
-    uint256 denominator = groupInfo.baseCount +
+    uint256 denominator = groupInfo.baseCount * BASE_WINNING_SCALE +
                           groupInfo.midTierCount * MID_TIER_WINNING_SCALE +
                           groupInfo.topTierCount * TOP_TIER_WINNING_SCALE;
     uint256 reward = (bet.winningScale.mul(groupInfo.totalBetAmount)).div(denominator);

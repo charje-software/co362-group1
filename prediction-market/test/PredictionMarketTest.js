@@ -10,17 +10,17 @@ contract("PredictionMarket one cycle", async accounts => {
   AGENT2 = accounts[2]; // mid tier agent
   AGENT3 = accounts[3]; // losing agent
 
-  BET_AMOUNT = 300;
+  BET_AMOUNT = 400;
   TOTAL_BET_AMOUNT = BET_AMOUNT * 3;
   FOLLOWING_GROUP_TOTAL_BET_AMOUNT = 0;  // total bet amount for following group
 
-  BASE_WINNING_SCALE = 1;
-  MID_TIER_WINNING_SCALE = 3;
-  TOP_TIER_WINNING_SCALE = 5;
+  BASE_WINNING_SCALE = 0;
+  MID_TIER_WINNING_SCALE = 1;
+  TOP_TIER_WINNING_SCALE = 3;
 
-  AGENT1_REWARD = 500;
+  AGENT1_REWARD = 900;
   AGENT2_REWARD = 300;
-  AGENT3_REWARD = 100;
+  AGENT3_REWARD = 0;
 
   AGENT1_PREDICTIONS = [];
   AGENT2_PREDICTIONS = [];
