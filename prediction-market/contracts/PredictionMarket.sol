@@ -28,7 +28,7 @@ contract PredictionMarket {
   mapping(address => Bet) public group3;
   mapping(uint256 => uint256) stageToGroupNumber; // Only used in stageToGroup() and constructor()
 
-  mapping(address => mapping(uint256 => uint256[48])) public history;
+  mapping(address => mapping(uint256 => Bet)) public history;
   mapping(uint256 => uint256[48]) public oracleHistory;
 
   // Returns the group corresponding to a Stage.
@@ -47,7 +47,7 @@ contract PredictionMarket {
 
   struct Bet {
     uint256 amount;
-    uint256[] predictions;
+    uint256[48] predictions;
     uint256 winningScale;
   }
 
@@ -100,7 +100,7 @@ contract PredictionMarket {
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
 
-    history[msg.sender][currDay + 1] = predictions;
+    history[msg.sender][currDay + 1].predictions = predictions;
   }
 
   // Called by betting agent to rank themselves. Sets `win` to true if
@@ -111,7 +111,7 @@ contract PredictionMarket {
     mapping(address => Bet) storage group = stageToGroup(CLAIMING);
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
 
-    uint256[] storage predictions = group[msg.sender].predictions;
+    uint256[48] storage predictions = group[msg.sender].predictions;
 
     // Calculate total error
     uint256 totalErr = 0;
@@ -188,7 +188,7 @@ contract PredictionMarket {
 
   }
 
-  function getBetPredictionsFromStage(uint256 stage) public view returns(uint256[] memory) {
+  function getBetPredictionsFromStage(uint256 stage) public view returns(uint256[48] memory) {
     return stageToGroup(stage)[msg.sender].predictions;
   }
 
@@ -200,11 +200,16 @@ contract PredictionMarket {
   // Note: we do not need to check if (dayOffset > currDay + 1) because uint256 wraps
   // around to the max uint value, which will map to an uninitialised array.
   function getPredictions(uint256 dayOffset) public view returns(uint256[48] memory) {
-    return history[msg.sender][currDay + 1 - dayOffset];
+    return history[msg.sender][currDay + 1 - dayOffset].predictions;
   }
 
   // Get Oracle consumptions for (day ahead - day offset)
   function getOracleConsumptions(uint256 dayOffset) public view returns(uint256[48] memory) {
     return oracleHistory[currDay + 1 - dayOffset];
+  }
+
+  // Get bet's winning scale for (day ahead - day offset)
+  function getBetWinningScale(uint256 dayOffset) public view returns(uint256) {
+    return history[msg.sender][currDay + 1 - dayOffset].winningScale;
   }
 }
