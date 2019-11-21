@@ -4,6 +4,7 @@ import {
   ContractData,
 } from "@drizzle/react-components";
 import PredictionGraph from './components/PredictionGraph';
+import MakeBetModal from './components/MakeBetModal';
 
 export default ({ accounts, PredictionMarket }) => (
   <div>
@@ -25,7 +26,10 @@ export default ({ accounts, PredictionMarket }) => (
       </div>
 
       <div className="section" style={roundedContainerStyle}>
-        <h2>Prediction Market</h2>
+        <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+          <h2>Prediction Market</h2>
+          <MakeBetModal/>
+        </div>
         <p>
           <strong>Winning threshold: </strong>
           <ContractData contract="PredictionMarket" method="WINNING_THRESHOLD" />
