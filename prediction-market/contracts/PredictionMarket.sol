@@ -148,7 +148,11 @@ contract PredictionMarket {
     uint256 denominator = groupInfo.baseCount * BASE_WINNING_SCALE +
                           groupInfo.midTierCount * MID_TIER_WINNING_SCALE +
                           groupInfo.topTierCount * TOP_TIER_WINNING_SCALE;
-    uint256 reward = (bet.winningScale.mul(groupInfo.totalBetAmount)).div(denominator);
+    uint256 reward = 0;
+    if (denominator != 0) {
+      reward = (bet.winningScale.mul(groupInfo.totalBetAmount)).div(denominator);
+    }
+
     msg.sender.transfer(reward);
 
     delete group[msg.sender];

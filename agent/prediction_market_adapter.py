@@ -1,7 +1,7 @@
 from web3 import Web3
 
 # Needs to match address of contract migrated to ganache (set manually)
-PREDICTION_MARKET = '0x2FFf6BaacCd0bba4593585FDd3BE1abb9150bFf5'
+PREDICTION_MARKET = '0x06521A98bc2D82493414B689c719f5459B6D9648'
 
 # Account to be used by oracle, for testing, migrations etc.
 ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
@@ -124,7 +124,7 @@ class PredictionMarketAdapter:
         Args:
             agent_account: The agent's account on the blockchain.
         """
-        return self.partial_contract.functions.getBetWinningScale(2).call()
+        return self.partial_contract.functions.getBetWinningScale(2).call({'from': agent_account})
 
     def transfer_reward(self, agent_account):
         """
