@@ -74,9 +74,9 @@ export default class MakeBetModal extends React.Component {
     return (
       <Fab variant="extended" 
         onClick={this.openModal}
-        style={{marginTop: 18, marginRight: 20, backgroundColor: 'white'}}>
+        style={fabStyle}>
         <AddIcon
-          style={{paddingRight: 3}}
+          style={iconStyle}
           color="inherit"
           component={this.svgGradient}
         />
@@ -102,8 +102,8 @@ export default class MakeBetModal extends React.Component {
             <h2>Predict the energy prices of tomorrow.</h2>
             <p>A prediction consists of 48 data points throughout the day. 
               Please separate your predictions with a comma.</p>
-            <p>For example, the first prediction is the consumption for 00:30am, 
-              the second for 1:00am and so on.</p>
+            <p>The first prediction is the consumption for 00:30am, 
+              the second is for 1:00am and so on.</p>
             <TextField
               label="Predictions"
               multiline
@@ -127,11 +127,11 @@ export default class MakeBetModal extends React.Component {
                 variant="outlined"
               />
               <Fab variant="extended" 
-                style={{marginTop: 17, marginRight: 20, backgroundColor: 'white'}}
+                style={fabStyle}
                 onClick={this.onClickBet}
               >
                 <NavigationIcon
-                  style={{marginRight: 5}}
+                  style={iconStyle}
                   component={this.svgGradient}
                 />
                 BET
@@ -153,6 +153,16 @@ export default class MakeBetModal extends React.Component {
   }
   
 }
+
+const fabStyle = {
+  marginTop: 17, 
+  marginRight: 20, 
+  backgroundColor: 'white'
+};
+
+const iconStyle = {
+  marginRight: 5
+};
 
 MakeBetModal.contextTypes = {
   drizzle: PropTypes.object

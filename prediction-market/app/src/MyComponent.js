@@ -18,7 +18,7 @@ export default ({ accounts, PredictionMarket }) => (
         </p>
     </div>
 
-    <div style={{padding: 40, alignContent: 'center'}}>
+    <div style={{padding: 20, alignContent: 'center'}}>
       <PredictionGraph predictionMarket={PredictionMarket} />
       
       <Box boxShadow={1} className="section" style={roundedContainerStyle}>
