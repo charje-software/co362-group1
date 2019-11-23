@@ -10,13 +10,25 @@ contract PredictionMarket {
   uint256 public WAITING = 2;
   uint256 public CLAIMING = 3;
 
+  uint256 public TOP_TIER_THRESHOLD = 75;    // Threshold for top tier bet winners
+  uint256 public MID_TIER_THRESHOLD = 150;   // Threshold for mid tier bet winners
+  uint256 public TOP_TIER_WINNING_SCALE = 3; // Scaled winnings for top tier winners
+  uint256 public MID_TIER_WINNING_SCALE = 1; // Scaled winnings for mid tier winners
+  uint256 public BASE_WINNING_SCALE = 0;     // Base winnings scale
+
+  uint256 public PREDICTIONS_PER_BET = 48;   // Number of predictions within a bet
+  uint256 public STAGE_LENGTH = 24;          // Number of time periods within a stage
+
+  uint256 public currTimePeriod = 0;         // Index of current period within 24 hour period
+  uint256 public currDay = 0;                // Current day relative to start of contract life
+
   // Groups: mapping of agent's addresses to their bets.
   mapping(address => Bet) public group1;
   mapping(address => Bet) public group2;
   mapping(address => Bet) public group3;
   mapping(uint256 => uint256) stageToGroupNumber; // Only used in stageToGroup() and constructor()
 
-  mapping(address => mapping(uint256 => uint256[48])) public history;
+  mapping(address => mapping(uint256 => Bet)) public history;
   mapping(uint256 => uint256[48]) public oracleHistory;
 
   // Returns the group corresponding to a Stage.
@@ -35,23 +47,18 @@ contract PredictionMarket {
 
   struct Bet {
     uint256 amount;
-    uint256[] predictions;
-    bool win;
+    uint256[48] predictions;
+    uint256 winningScale;
   }
 
   struct GroupInfo {
-    address[] agents;       // List of agents in the group
-    uint256 totalWinners;
+    address[] agents;         // List of agents in the group
+    uint256 topTierCount;
+    uint256 midTierCount;
+    uint256 baseCount;
     uint256 totalBetAmount;
     uint256[] consumption;    // Oracle-provided actual aggregate demand
   }
-
-  uint256 public currTimePeriod = 0; // Index of current period within 24 hour period
-  uint256 public currDay = 0;        // Current day relative to start of contract life
-
-  uint256 public WINNING_THRESHOLD = 100;
-  uint256 public PREDICTIONS_PER_BET = 48;
-  uint256 public STAGE_LENGTH = 24; // Number of time periods within a stage
 
   constructor() public {
     stageToGroupNumber[BETTING] = 1;
@@ -87,12 +94,14 @@ contract PredictionMarket {
     GroupInfo storage groupInfo = stageToGroupInfo[BETTING];
 
     group[msg.sender].amount = msg.value;
+    history[msg.sender][currDay + 1].amount = msg.value;
     group[msg.sender].predictions = predictions;
-    group[msg.sender].win = false;
+    history[msg.sender][currDay + 1].predictions = predictions;
+    group[msg.sender].winningScale = BASE_WINNING_SCALE;
+    history[msg.sender][currDay + 1].winningScale = BASE_WINNING_SCALE;
+    groupInfo.baseCount++;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
-
-    history[msg.sender][currDay + 1] = predictions;
   }
 
   // Called by betting agent to rank themselves. Sets `win` to true if
@@ -103,7 +112,7 @@ contract PredictionMarket {
     mapping(address => Bet) storage group = stageToGroup(CLAIMING);
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
 
-    uint256[] storage predictions = group[msg.sender].predictions;
+    uint256[48] storage predictions = group[msg.sender].predictions;
 
     // Calculate total error
     uint256 totalErr = 0;
@@ -115,9 +124,16 @@ contract PredictionMarket {
       }
     }
 
-    if (totalErr <= WINNING_THRESHOLD * PREDICTIONS_PER_BET) {
-      group[msg.sender].win = true;
-      groupInfo.totalWinners++;
+    if (totalErr <= TOP_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
+      group[msg.sender].winningScale = TOP_TIER_WINNING_SCALE;
+      history[msg.sender][currDay - 1].winningScale = TOP_TIER_WINNING_SCALE;
+      groupInfo.topTierCount++;
+      groupInfo.baseCount--;
+    } else if (totalErr <= MID_TIER_THRESHOLD * PREDICTIONS_PER_BET) {
+      group[msg.sender].winningScale = MID_TIER_WINNING_SCALE;
+      history[msg.sender][currDay - 1].winningScale = MID_TIER_WINNING_SCALE;
+      groupInfo.midTierCount++;
+      groupInfo.baseCount--;
     }
   }
 
@@ -127,12 +143,18 @@ contract PredictionMarket {
 
     mapping(address => Bet) storage group = stageToGroup(CLAIMING);
     GroupInfo storage groupInfo = stageToGroupInfo[CLAIMING];
+    Bet storage bet = group[msg.sender];
 
-    if (group[msg.sender].win) {
-      // As agent has won, total winners will not be 0.
-      uint256 reward = groupInfo.totalBetAmount.div(groupInfo.totalWinners);
-      msg.sender.transfer(reward);
+    uint256 denominator = groupInfo.baseCount * BASE_WINNING_SCALE +
+                          groupInfo.midTierCount * MID_TIER_WINNING_SCALE +
+                          groupInfo.topTierCount * TOP_TIER_WINNING_SCALE;
+    uint256 reward = 0;
+    if (denominator != 0) {
+      reward = (bet.winningScale.mul(groupInfo.totalBetAmount)).div(denominator);
     }
+
+    msg.sender.transfer(reward);
+
     delete group[msg.sender];
     // TODO: agent removing itself from agent key set.
   }
@@ -156,7 +178,9 @@ contract PredictionMarket {
 
       agents.length = 0;
       claimingGroupInfo.totalBetAmount = 0;
-      claimingGroupInfo.totalWinners = 0;
+      claimingGroupInfo.baseCount = 0;
+      claimingGroupInfo.midTierCount = 0;
+      claimingGroupInfo.topTierCount = 0;
       claimingGroupInfo.consumption.length = 0;
 
       uint256 tmp = BETTING;
@@ -171,7 +195,7 @@ contract PredictionMarket {
 
   }
 
-  function getBetPredictionsFromStage(uint256 stage) public view returns(uint256[] memory) {
+  function getBetPredictionsFromStage(uint256 stage) public view returns(uint256[48] memory) {
     return stageToGroup(stage)[msg.sender].predictions;
   }
 
@@ -183,11 +207,16 @@ contract PredictionMarket {
   // Note: we do not need to check if (dayOffset > currDay + 1) because uint256 wraps
   // around to the max uint value, which will map to an uninitialised array.
   function getPredictions(uint256 dayOffset) public view returns(uint256[48] memory) {
-    return history[msg.sender][currDay + 1 - dayOffset];
+    return history[msg.sender][currDay + 1 - dayOffset].predictions;
   }
 
   // Get Oracle consumptions for (day ahead - day offset)
   function getOracleConsumptions(uint256 dayOffset) public view returns(uint256[48] memory) {
     return oracleHistory[currDay + 1 - dayOffset];
+  }
+
+  // Get bet's winning scale for (day ahead - day offset)
+  function getBetWinningScale(uint256 dayOffset) public view returns(uint256) {
+    return history[msg.sender][currDay + 1 - dayOffset].winningScale;
   }
 }
