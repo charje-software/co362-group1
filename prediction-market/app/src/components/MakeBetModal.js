@@ -90,7 +90,7 @@ export default class MakeBetModal extends React.Component {
       <Modal
         open={this.state.open}
         onClose={this.closeModal}
-        style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+        style={modalStyle}
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{
@@ -98,7 +98,7 @@ export default class MakeBetModal extends React.Component {
         }}
       >
         <Fade in={this.state.open}>
-          <div style={{borderRadius: 20, backgroundColor: 'white', padding: 25}}>
+          <div style={formStyle}>
             <h2>Predict the energy prices of tomorrow.</h2>
             <p>A prediction consists of 48 data points throughout the day. 
               Please separate your predictions with a comma.</p>
@@ -153,6 +153,19 @@ export default class MakeBetModal extends React.Component {
   }
   
 }
+
+const modalStyle = {
+  display: 'flex', 
+  alignItems: 'center', 
+  justifyContent: 'center',
+};
+
+const formStyle = {
+  borderRadius: 20, 
+  backgroundColor: 'white', 
+  padding: 25,
+  outline: 'none'
+};
 
 const fabStyle = {
   marginTop: 17, 
