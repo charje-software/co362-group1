@@ -4,7 +4,7 @@ variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 cache: &node_cache
-  key: ${CI_COMMIT_REF_SLUG}
+  key: node-cache
   paths:
   - prediction-market/node_modules/
   - prediction-market/app/node_modules/
@@ -27,8 +27,7 @@ node_deps:
    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
      when: on_success
    - changes:
-     - prediction-market/package.json
-     - prediction-market/app/package.json
+     - prediction-market/*
      - .gitlab-ci.yml
      when: on_success
 
