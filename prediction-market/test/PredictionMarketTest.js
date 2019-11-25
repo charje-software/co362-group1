@@ -88,7 +88,7 @@ contract("PredictionMarket one cycle", async accounts => {
 
     const claiming = await pm.CLAIMING.call();
     const claimingGroupInfo = await pm.stageToGroupInfo.call(claiming);
-    const claimingGroupOracleConsumption = await pm.getOracleConsumptionFromStage.call(claiming);
+    const claimingGroupOracleConsumption = await pm.getOracleConsumptionsFromStage.call(claiming);
 
     assert.equal(claimingGroupInfo.totalBetAmount.toNumber(), TOTAL_BET_AMOUNT);
     assert.equal(claimingGroupOracleConsumption[0].toNumber(), ORACLE_CONSUMPTION);
@@ -105,7 +105,7 @@ contract("PredictionMarket one cycle", async accounts => {
     assert.equal(agentPredictions[47].toNumber(), AGENT1_PREDICTION + 47);
   })
 
-  it ('Agent calling rank should set win to true if within threshold', async () => {
+  it ('Agent calling rank should set correct scales according to threshold', async () => {
     await pm.rank({from: AGENT1});
     await pm.rank({from: AGENT2});
     await pm.rank({from: AGENT3});
@@ -156,7 +156,7 @@ contract("PredictionMarket one cycle", async accounts => {
 
     const betting = await pm.BETTING.call();
     const bettingGroupInfo = await pm.stageToGroupInfo.call(betting);
-    const bettingGroupOracleConsumption = await pm.getOracleConsumptionFromStage.call(betting);
+    const bettingGroupOracleConsumption = await pm.getOracleConsumptionsFromStage.call(betting);
 
     assert.equal(bettingGroupInfo.totalBetAmount.toNumber(), 0);
     assert.equal(bettingGroupOracleConsumption.length, 0);

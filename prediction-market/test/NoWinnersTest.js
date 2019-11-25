@@ -3,7 +3,7 @@ const PredictionMarket = artifacts.require("PredictionMarket");
 STAGE_LENGTH = 24
 PREDICTIONS_PER_BET = 48
 
-contract("No Winners test cycle", async accounts => {
+contract("No Winners test", async accounts => {
   ORACLE = accounts[0];
   AGENT = accounts[1];
   BET_AMOUNT = 100;

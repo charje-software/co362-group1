@@ -195,24 +195,34 @@ contract PredictionMarket {
 
   }
 
+  // Get calling agent's predictions for stage
   function getBetPredictionsFromStage(uint256 stage) public view returns(uint256[48] memory) {
     return stageToGroup(stage)[msg.sender].predictions;
   }
 
-  function getOracleConsumptionFromStage(uint256 stage) public view returns(uint256[] memory) {
-    return stageToGroupInfo[stage].consumption;
+  // Get calling agent's predictions for (day ahead - day offset)
+  function getPredictions(uint256 dayOffset) public view returns(uint256[48] memory) {
+    return getPredictionsForAddress(msg.sender, dayOffset);
   }
 
-  // Get predictions for (day ahead - day offset)
-  // Note: we do not need to check if (dayOffset > currDay + 1) because uint256 wraps
-  // around to the max uint value, which will map to an uninitialised array.
-  function getPredictions(uint256 dayOffset) public view returns(uint256[48] memory) {
-    return history[msg.sender][currDay + 1 - dayOffset].predictions;
+  // Get addr's predictions for (day ahead - day offset)
+  function getPredictionsForAddress(address addr, uint256 dayOffset) public view returns(uint256[48] memory) {
+    return history[addr][currDay + 1 - dayOffset].predictions;
+  }
+
+  // Get Oracle consumptions for stage
+  function getOracleConsumptionsFromStage(uint256 stage) public view returns(uint256[] memory) {
+    return stageToGroupInfo[stage].consumption;
   }
 
   // Get Oracle consumptions for (day ahead - day offset)
   function getOracleConsumptions(uint256 dayOffset) public view returns(uint256[48] memory) {
     return oracleHistory[currDay + 1 - dayOffset];
+  }
+
+  // Get array of agents that have placed a bet in the current betting period
+  function getCurrentParticipants() public view returns(address[] memory) {
+    return stageToGroupInfo[BETTING].agents;
   }
 
   // Get bet's winning scale for (day ahead - day offset)
