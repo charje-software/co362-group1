@@ -39,12 +39,19 @@ contract("Getters test", async accounts => {
     assert.equal(participants[1], AGENT2);
   });
 
-  it ('getOracleConsumptionsFromStage works correctly', async () => {
+  it ('getAveragePredictions works correctly', async () => {
     // pass from BETTING to WAITING
     for (var i = 0; i < STAGE_LENGTH * 2; i++) {
-        await pm.updateConsumption(0, {from: ORACLE});
+      await pm.updateConsumption(0, {from: ORACLE});
     }
 
+    const predictions = await pm.getAveragePredictions.call(1);
+
+    assert.equal(predictions[0].toNumber(), (AGENT1_PREDICTION + AGENT2_PREDICTION) / 2);
+    assert.equal(predictions[47].toNumber(), ((AGENT1_PREDICTION + AGENT2_PREDICTION) / 2) + 47);
+  });
+
+  it ('getOracleConsumptionsFromStage works correctly', async () => { 
     // pass from WAITING to CLAIMING
     for (var i = 0; i < STAGE_LENGTH * 2; i++) {
         await pm.updateConsumption(ORACLE_CONSUMPTION, {from: ORACLE});
