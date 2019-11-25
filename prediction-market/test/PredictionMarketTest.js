@@ -4,7 +4,6 @@ STAGE_LENGTH = 24
 PREDICTIONS_PER_BET = 48
 
 contract("PredictionMarket one cycle", async accounts => {
-
   ORACLE = accounts[0];
   AGENT1 = accounts[1]; // top tier agent
   AGENT2 = accounts[2]; // mid tier agent

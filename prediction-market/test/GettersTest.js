@@ -1,25 +1,6 @@
 const PredictionMarket = artifacts.require("PredictionMarket");
 
-STAGE_LENGTH = 24
-PREDICTIONS_PER_BET = 48
-
 contract("Getters test", async accounts => {
-  ORACLE = accounts[0];
-  AGENT1 = accounts[1];
-  AGENT2 = accounts[2];
-  BET_AMOUNT = 100;
-  MID_TIER_WINNING_SCALE = 1;
-  TOP_TIER_WINNING_SCALE = 3;
-  ORACLE_CONSUMPTION = 500;
-  AGENT1_PREDICTIONS = [];
-  AGENT2_PREDICTIONS = [];
-  AGENT1_PREDICTION = 550;
-  AGENT2_PREDICTION = 600;
-  for (var i = 0; i < PREDICTIONS_PER_BET; i++) {
-    AGENT1_PREDICTIONS.push(AGENT1_PREDICTION);
-    AGENT2_PREDICTIONS.push(AGENT2_PREDICTION);
-  }
-
   let pm
 
   beforeEach('setup contract', async function () {
@@ -34,21 +15,21 @@ contract("Getters test", async accounts => {
     const predictions = await pm.getBetPredictionsFromStage.call(betting, {from: AGENT1});
 
     assert.equal(predictions[0].toNumber(), AGENT1_PREDICTION);
-    assert.equal(predictions[47].toNumber(), AGENT1_PREDICTION);
+    assert.equal(predictions[47].toNumber(), AGENT1_PREDICTION + 47);
   });
 
   it ('getPredictions works correctly', async () => {
     const predictions = await pm.getPredictions.call(0, {from: AGENT1});
 
     assert.equal(predictions[0].toNumber(), AGENT1_PREDICTION);
-    assert.equal(predictions[47].toNumber(), AGENT1_PREDICTION);
+    assert.equal(predictions[47].toNumber(), AGENT1_PREDICTION + 47);
   });
 
   it ('getPredictionsForAddress works correctly', async () => {
     const predictions = await pm.getPredictionsForAddress.call(AGENT2, 0, {from: AGENT1});
 
     assert.equal(predictions[0].toNumber(), AGENT2_PREDICTION);
-    assert.equal(predictions[47].toNumber(), AGENT2_PREDICTION);
+    assert.equal(predictions[47].toNumber(), AGENT2_PREDICTION + 47);
   });
 
   it ('getCurrentParticipants works correctly', async () => {
