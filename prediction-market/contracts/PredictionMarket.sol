@@ -30,6 +30,8 @@ contract PredictionMarket {
 
   mapping(address => mapping(uint256 => Bet)) public history;
   mapping(uint256 => uint256[48]) public oracleHistory;
+  mapping(uint256 => uint256[48]) public averagePredictionsHistory;
+  mapping(uint256 => uint256) public groupCountHistory;
 
   // Returns the group corresponding to a Stage.
   function stageToGroup(uint256 stage) private view returns(mapping(address => Bet) storage) {
@@ -99,9 +101,14 @@ contract PredictionMarket {
     history[msg.sender][currDay + 1].predictions = predictions;
     group[msg.sender].winningScale = BASE_WINNING_SCALE;
     history[msg.sender][currDay + 1].winningScale = BASE_WINNING_SCALE;
+
     groupInfo.baseCount++;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
+
+    for (uint256 i = 0; i < PREDICTIONS_PER_BET; i++) {
+      averagePredictionsHistory[currDay + 1][i] = averagePredictionsHistory[currDay + 1][i].add(predictions[i]);
+    }
   }
 
   // Called by betting agent to rank themselves. Sets `win` to true if
@@ -167,6 +174,10 @@ contract PredictionMarket {
     currTimePeriod++;
 
     if (currTimePeriod == PREDICTIONS_PER_BET) {
+      // Recording list of betting agents in group history
+      GroupInfo storage bettingGroupInfo = stageToGroupInfo[BETTING];
+      groupCountHistory[currDay + 1] = bettingGroupInfo.agents.length;
+
       GroupInfo storage claimingGroupInfo = stageToGroupInfo[CLAIMING];
       address[] storage agents = claimingGroupInfo.agents;
       mapping(address => Bet) storage group = stageToGroup(CLAIMING);
@@ -208,6 +219,16 @@ contract PredictionMarket {
   // Get addr's predictions for (day ahead - day offset)
   function getPredictionsForAddress(address addr, uint256 dayOffset) public view returns(uint256[48] memory) {
     return history[addr][currDay + 1 - dayOffset].predictions;
+  }
+
+  // Get average prediction for (day ahead - day offset)
+  function getAveragePredictions(uint256 dayOffset) public view returns(uint256[48] memory) {
+    uint256 numAgents = groupCountHistory[currDay + 1 - dayOffset];
+    uint256[48] memory averagePredictions;
+    for (uint256 i = 0; i < PREDICTIONS_PER_BET; i++) {
+      averagePredictions[i] = averagePredictionsHistory[currDay + 1 - dayOffset][i].div(numAgents);
+    }
+    return averagePredictions;
   }
 
   // Get Oracle consumptions for stage
