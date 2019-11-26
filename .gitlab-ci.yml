@@ -31,29 +31,29 @@ node_deps:
      - .gitlab-ci.yml
      when: on_success
 
-python_deps:
-  stage: install
-  image: python:3.7
-  tags:
-   - python-job
-  script:
-   - cd agent/
-   - pip install virtualenv
-   - virtualenv venv
-   - source venv/bin/activate
-   - pip install -r requirements.txt
-  rules:
-   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-     when: on_success
-   - changes:
-     - agent/requirements.txt
-     - .gitlab-ci.yml
-     when: on_success
-  cache: &python_cache
-    key: python-cache
-    paths:
-     - .cache/pip
-     - agent/venv/
+# python_deps:
+#   stage: install
+#   image: python:3.7
+#   tags:
+#    - python-job
+#   script:
+#    - cd agent/
+#    - pip install virtualenv
+#    - virtualenv venv
+#    - source venv/bin/activate
+#    - pip install -r requirements.txt
+#   rules:
+#    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+#      when: on_success
+#    - changes:
+#      - agent/requirements.txt
+#      - .gitlab-ci.yml
+#      when: on_success
+#   cache: &python_cache
+#     key: python-cache
+#     paths:
+#      - .cache/pip
+#      - agent/venv/
 
 build_prediction_market:
   stage: build
@@ -77,28 +77,28 @@ build_prediction_market:
     <<: *node_cache
     policy: pull
 
-build_agent:
-  stage: build
-  image: python:3.7
-  tags:
-   - python-job
-  script:
-   - cd agent/
-   - pip install virtualenv
-   - virtualenv venv
-   - source venv/bin/activate
-   # not building anything yet, just checking code style
-   - pycodestyle --show-source --show-pep8 --max-line-length=100 *.py
-  rules:
-   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-     when: on_success
-   - changes:
-     - agent/*
-     - .gitlab-ci.yml
-     when: on_success
-  cache: 
-    <<: *python_cache
-    policy: pull
+# build_agent:
+#   stage: build
+#   image: python:3.7
+#   tags:
+#    - python-job
+#   script:
+#    - cd agent/
+#    - pip install virtualenv
+#    - virtualenv venv
+#    - source venv/bin/activate
+#    # not building anything yet, just checking code style
+#    - pycodestyle --show-source --show-pep8 --max-line-length=100 *.py
+#   rules:
+#    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+#      when: on_success
+#    - changes:
+#      - agent/*
+#      - .gitlab-ci.yml
+#      when: on_success
+#   cache: 
+#     <<: *python_cache
+#     policy: pull
 
 test_prediction_market:
   stage: test
@@ -120,34 +120,34 @@ test_prediction_market:
     <<: *node_cache
     policy: pull
 
-test_agent:
-  stage: test
-  image: python:3.7
-  tags:
-   - python-job
-  script:
-   - cd agent/
-   - pip install virtualenv
-   - virtualenv venv
-   - source venv/bin/activate
-   - python test_agent_unittest.py
-   - python test_meter_unittest.py
-   - python test_oracle_unittest.py
-   - python calc_model_accuracy.py
-  artifacts:
-    paths:
-      - agent/metrics
-    expire_in: 1 week
-  rules:
-   - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
-     when: on_success
-   - changes:
-     - agent/*
-     - .gitlab-ci.yml
-     when: on_success
-  cache: 
-    <<: *python_cache
-    policy: pull
+# test_agent:
+#   stage: test
+#   image: python:3.7
+#   tags:
+#    - python-job
+#   script:
+#    - cd agent/
+#    - pip install virtualenv
+#    - virtualenv venv
+#    - source venv/bin/activate
+#    - python test_agent_unittest.py
+#    - python test_meter_unittest.py
+#    - python test_oracle_unittest.py
+#    - python calc_model_accuracy.py
+#   artifacts:
+#     paths:
+#       - agent/metrics
+#     expire_in: 1 week
+#   rules:
+#    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+#      when: on_success
+#    - changes:
+#      - agent/*
+#      - .gitlab-ci.yml
+#      when: on_success
+#   cache: 
+#     <<: *python_cache
+#     policy: pull
 
 deploy_contracts:
   stage: deploy
