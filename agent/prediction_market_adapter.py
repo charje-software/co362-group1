@@ -1,7 +1,7 @@
 from web3 import Web3
 
 # Needs to match address of contract migrated to ganache (set manually)
-PREDICTION_MARKET = '0x06521A98bc2D82493414B689c719f5459B6D9648'
+PREDICTION_MARKET = '0xB43Bd853cCd5698C6bd9Cb6800e22Be031f0467D'
 
 # Account to be used by oracle, for testing, migrations etc.
 ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
@@ -15,6 +15,9 @@ UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
 
 # how many predictions to make per bet
 NUM_PREDICTIONS = 48  # must be even
+
+# absolute error must be less than this threshold to rank in top tier
+TOP_TIER_THRESHOLD = 75
 
 # Local ganache
 RPC_URL = 'http://127.0.0.1:7545'
@@ -36,43 +39,7 @@ class PredictionMarketAdapter:
         self.address = address
         self.partial_contract = self.w3.eth.contract(
             address=address,
-            abi=[{
-                "constant": True,
-                "inputs": [
-                    {
-                        "name": "dayOffset",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "getOracleConsumptions",
-                "outputs": [
-                    {
-                        "name": "",
-                        "type": "uint256[48]"
-                    }
-                ],
-                "payable": False,
-                "stateMutability": "view",
-                "type": "function"
-            }, {
-                "constant": True,
-                "inputs": [
-                    {
-                        "name": "dayOffset",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "getBetWinningScale",
-                "outputs": [
-                    {
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "payable": False,
-                "stateMutability": "view",
-                "type": "function"
-            }])
+            abi=PredictionMarketAdapter.ABI)
 
     def get_call_data(self, function_hash, params):
         """
@@ -117,14 +84,20 @@ class PredictionMarketAdapter:
         self.w3.eth.sendTransaction({'to': self.address, 'from': agent_account,
                                      'data': self.get_call_data(RANK, [])})
 
-    def get_winning_scale(self, agent_account):
+    def get_winning_tier(self, agent_account):
         """
-        Calls the PredictionMarket smart contract to get winning scale of latest ranked prediction.
+        Calls the PredictionMarket smart contract to get winning tier of latest ranked prediction.
 
         Args:
             agent_account: The agent's account on the blockchain.
         """
-        return self.partial_contract.functions.getBetWinningScale(2).call({'from': agent_account})
+        scale = self.partial_contract.functions.getBetWinningScale(2).call({'from': agent_account})
+        if scale == 3:
+            return 'top'
+        if scale == 1:
+            return 'mid'
+        else:
+            return 'lost'
 
     def transfer_reward(self, agent_account):
         """
@@ -157,3 +130,93 @@ class PredictionMarketAdapter:
         Calls the PredictionMarket smart contract to fetch the latest NUM_PREDICTIONS oracle values.
         """
         return self.partial_contract.functions.getOracleConsumptions(2).call()
+
+    def get_predictions_for_agent(self, agent_account, day_offset=0):
+        """
+        Calls the PredictionMarket smart contract to fetch the given agents predictions
+        for the day ahead - day_offset.
+        """
+        return self.partial_contract.functions.getPredictionsForAddress(
+            agent_account, day_offset).call()
+
+    def get_current_participants(self):
+        """
+        Calls the PredictionMarket smart contract to fetch the addresses of
+        the agents participating in the latest betting period.
+        """
+        return self.partial_contract.functions.getCurrentParticipants().call()
+
+    ABI = [{
+        "constant": True,
+        "inputs": [
+            {
+                "name": "dayOffset",
+                "type": "uint256"
+            }
+        ],
+        "name": "getOracleConsumptions",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256[48]"
+            }
+        ],
+        "payable": False,
+        "stateMutability": "view",
+        "type": "function"
+    }, {
+        "constant": True,
+        "inputs": [
+            {
+                "name": "dayOffset",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBetWinningScale",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "payable": False,
+        "stateMutability": "view",
+        "type": "function"
+    },
+        {
+            "constant": True,
+            "inputs": [
+                {
+                    "name": "addr",
+                    "type": "address"
+                },
+                {
+                    "name": "dayOffset",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getPredictionsForAddress",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256[48]"
+                }
+            ],
+            "payable": False,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": True,
+            "inputs": [],
+            "name": "getCurrentParticipants",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address[]"
+                }
+            ],
+            "payable": False,
+            "stateMutability": "view",
+            "type": "function"
+        }]
