@@ -118,7 +118,7 @@ class PredictionGraph extends React.Component {
           this.formatData(pm.getPredictions[agentPredictionKey].value);
 
         return (
-          <div className="section">
+          <div className="section" style={{maxWidth: '720px'}}>
             <h1 style={{fontFamily: 'Poppins', display: 'flex', justifyContent: 'center'}}>
               Oracle Energy Consumptions
             </h1>
