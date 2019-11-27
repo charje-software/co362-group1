@@ -5,7 +5,7 @@ import {VictoryChart, VictoryGroup, VictoryVoronoiContainer,
 import Fab from '@material-ui/core/Fab';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const TIME_MARKERS = ["Tomorrow", "Today", "Yesterday", "2 Days Before", 
+const TIME_MARKERS = ["Tomorrow", "Today", "Yesterday", "2 Days Before",
                      "3 Days Before", "4 Days Before", "5 Days Before"];
 
 class PredictionGraph extends React.Component {
@@ -24,7 +24,7 @@ class PredictionGraph extends React.Component {
       }
       this.state = {currentDay: 1};
     }
-    
+
     hasFetchedData() {
       for (let i = 0; i < 7; i++) {
         const oracleDataKey = this.oracleDataKeys[i];
@@ -39,11 +39,11 @@ class PredictionGraph extends React.Component {
 
     renderGraphFooter() {
       return (
-        <div 
-          style={{ 
-            display: 'flex', 
-            flexDirection: 'row', 
-            justifyContent: 'space-around', 
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
             alignItems: 'center',
             borderRadius: 35,
             background: 'linear-gradient(to right bottom, #2d1896, #0d2ca8)',
@@ -55,7 +55,7 @@ class PredictionGraph extends React.Component {
             color="primary"
             aria-label="add"
             onClick={() => void this.setState({currentDay: this.state.currentDay + 1})}
-            disabled={this.state.currentDay === 6}          
+            disabled={this.state.currentDay === 6}
           >
             BACK
           </Fab>
@@ -66,7 +66,7 @@ class PredictionGraph extends React.Component {
             color="primary"
             aria-label="add"
             onClick={() => void this.setState({currentDay: this.state.currentDay - 1})}
-            disabled={this.state.currentDay === 0}  
+            disabled={this.state.currentDay === 0}
           >
             NEXT
           </Fab>
@@ -78,12 +78,12 @@ class PredictionGraph extends React.Component {
       return (
         <VictoryGroup data={data} style={{ data: { fill: '#a10d2d' }}}>
           <VictoryAxis dependentAxis fixLabelOverlap />
-          <VictoryAxis crossAxis fixLabelOverlap 
+          <VictoryAxis crossAxis fixLabelOverlap
             label="Time"
             tickValues={[4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48]}
             tickFormat={this.periodToTime}
           />
-          <VictoryLine name='oracle'/> 
+          <VictoryLine name='oracle'/>
           <VictoryScatter style={{ data: { fill: '#a10d2d' }}}/>
         </VictoryGroup>
       );
@@ -114,7 +114,7 @@ class PredictionGraph extends React.Component {
         var oracleData = this.formatData(pm.getOracleConsumptions[oracleDataKey].value);
 
         const agentPredictionKey = this.agentPredictionDataKeys[day];
-        var agentPredictionData = 
+        var agentPredictionData =
           this.formatData(pm.getPredictions[agentPredictionKey].value);
 
         return (
@@ -175,5 +175,5 @@ class PredictionGraph extends React.Component {
 PredictionGraph.contextTypes = {
   drizzle: PropTypes.object
 }
-  
+
 export default PredictionGraph;

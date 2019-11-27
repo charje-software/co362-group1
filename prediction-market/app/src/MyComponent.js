@@ -3,6 +3,7 @@ import {
   AccountData,
   ContractData,
 } from "@drizzle/react-components";
+import AgentBets from './components/AgentBets';
 import PredictionGraph from './components/PredictionGraph';
 import MakeBetModal from './components/MakeBetModal';
 import Box from '@material-ui/core/Box';
@@ -20,10 +21,15 @@ export default ({ accounts, PredictionMarket }) => (
 
     <div style={{padding: 20, alignContent: 'center'}}>
       <PredictionGraph predictionMarket={PredictionMarket} />
-      
+
       <Box boxShadow={1} className="section" style={roundedContainerStyle}>
         <h2>Active Account</h2>
         <AccountData accountIndex={0} units="ether" precision={3} />
+      </Box>
+
+      <Box boxShadow={1} className="section" style={roundedContainerStyle}>
+        <h2>Bet History</h2>
+        <AgentBets PredictionMarket = {PredictionMarket} accounts = {accounts} />
       </Box>
 
       <Box boxShadow={1} className="section" style={roundedContainerStyle}>
@@ -46,18 +52,19 @@ export default ({ accounts, PredictionMarket }) => (
 );
 
 const headerStyle = {
-  display: 'flex', 
-  flexDirection: 'row', 
-  alignItems: 'center', 
-  justifyContent: 'space-around', 
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-around',
   background: 'linear-gradient(to right bottom, #4e036e, #d91a1a)',
   borderRadius: 0,
 };
 
 const roundedContainerStyle = {
-  borderRadius: '12px', 
-  paddingTop: 7, 
+  borderRadius: '12px',
+  paddingTop: 7,
   paddingBottom: 7,
   paddingLeft: 15,
+  paddingRight: 15,
   backgroundColor: '#f6f6f6'
 };
