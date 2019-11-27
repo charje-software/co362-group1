@@ -51,6 +51,7 @@ contract PredictionMarket {
     uint256 amount;
     uint256[48] predictions;
     uint256 winningScale;
+    uint256 timestamp;
   }
 
   struct GroupInfo {
@@ -101,7 +102,8 @@ contract PredictionMarket {
     history[msg.sender][currDay + 1].predictions = predictions;
     group[msg.sender].winningScale = BASE_WINNING_SCALE;
     history[msg.sender][currDay + 1].winningScale = BASE_WINNING_SCALE;
-
+    group[msg.sender].timestamp = now;
+    history[msg.sender][currDay + 1].timestamp = group[msg.sender].timestamp;
     groupInfo.baseCount++;
     groupInfo.agents.push(msg.sender);
     groupInfo.totalBetAmount = groupInfo.totalBetAmount.add(msg.value);
@@ -249,5 +251,49 @@ contract PredictionMarket {
   // Get bet's winning scale for (day ahead - day offset)
   function getBetWinningScale(uint256 dayOffset) public view returns(uint256) {
     return history[msg.sender][currDay + 1 - dayOffset].winningScale;
+  }
+
+  // Get agent bet predictions from history over past 7 days. Always returns bets in betting, waiting,
+  // claiming stages at first 3 indices, if any.
+  function getBetPredictionsForAgent() public view returns(uint256[48][7] memory) {
+    uint256[48][7] memory agentPredictions;
+    for (uint256 i = 0; i < 7; i++) {
+      agentPredictions[i] = history[msg.sender][currDay + 1 - i].predictions;
+    }
+
+    return agentPredictions;
+  }
+
+  // Get agent bet amounts from history over past 7 days. Always returns bets in betting, waiting,
+  // claiming stages at first 3 indices, if any.
+  function getBetAmountsForAgent() public view returns(uint256[7] memory) {
+    uint256[7] memory betAmounts;
+    for (uint256 i = 0; i < 7; i++) {
+      betAmounts[i] = history[msg.sender][currDay + 1 - i].amount;
+    }
+
+    return betAmounts;
+  }
+
+  // Get agent bet winning scales from history over past 7 days. Always returns bets in betting, waiting,
+  // claiming stages at first 3 indices, if any.
+  function getBetWinningScalesForAgent() public view returns(uint256[7] memory) {
+    uint256[7] memory winningScales;
+    for (uint256 i = 0; i < 7; i++) {
+      winningScales[i] = history[msg.sender][currDay + 1 - i].winningScale;
+    }
+
+    return winningScales;
+  }
+
+  // Get agent bet timestamps from history over past 7 days. Always returns bets in betting, waiting,
+  // claiming stages at first 3 indices, if any.
+  function getBetTimestampsForAgent() public view returns(uint256[7] memory) {
+    uint256[7] memory betTimestamps;
+    for (uint256 i = 0; i < 7; i++) {
+      betTimestamps[i] = history[msg.sender][currDay + 1 - i].timestamp;
+    }
+
+    return betTimestamps;
   }
 }
