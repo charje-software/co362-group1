@@ -57,7 +57,9 @@ function Dashboard() {
 function About() {
   return (
     <DrizzleProvider options={drizzleOptions}>
+      <LoadingContainer>
         <AboutContainer />
+      </LoadingContainer>
     </DrizzleProvider>
   );
 }
