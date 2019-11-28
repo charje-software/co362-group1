@@ -1,8 +1,9 @@
 pragma solidity >=0.4.21 <0.6.0;
 
 import "../node_modules/@openzeppelin/contracts/math/SafeMath.sol";
+import "../node_modules/@openzeppelin/contracts/ownership/Ownable.sol";
 
-contract PredictionMarket {
+contract PredictionMarket is Ownable {
   using SafeMath for uint256;
 
   // Group stages
@@ -169,7 +170,7 @@ contract PredictionMarket {
   }
 
   // Called by Oracle to tell contract the consumption for a time period.
-  function updateConsumption(uint256 consumption) public payable {
+  function updateConsumption(uint256 consumption) public payable onlyOwner {
     // TODO: require that the address of the sender is Oracle.
     stageToGroupInfo[WAITING].consumption.push(consumption);
     oracleHistory[currDay][currTimePeriod] = consumption;
