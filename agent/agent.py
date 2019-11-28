@@ -1,4 +1,3 @@
-import time
 from colr import color
 
 from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, ACCOUNT_0
@@ -6,6 +5,9 @@ from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, 
 
 class Agent:
     """Simple agent representing one household.
+
+    Note that the agent assumes that place_bet, rank_bet, collect_reward are called only
+    once in each period when allowed.
 
     Attributes:
         account:           The agent's account on the blockchain.
@@ -36,8 +38,9 @@ class Agent:
         self.prediction_market.rank(self.account)
 
     def collect_reward(self):
-        self.log('Collecting reward. Won: {0}.'
-                 .format(self.prediction_market.transfer_reward(self.account)))
+        self.prediction_market.transfer_reward(self.account)
+        self.log('Collecting reward. Won?: {0}.'
+                 .format(self.prediction_market.get_winning_tier(self.account)))
 
     def predict(self, n):
         """
