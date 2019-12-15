@@ -10,8 +10,8 @@ class ArRetrainAgent(Agent):
        It fits its model again after each day.
 
     Attributes:
-        model: a pretrained autoregression model used for predicting
-               future aggregate energy consumption.
+        model: an autoregression model trained each day on all available history
+               used for predicting future aggregate energy consumption.
         history: past aggregate energy consumption (as a list)
     """
 

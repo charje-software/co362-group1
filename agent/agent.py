@@ -13,6 +13,8 @@ class Agent:
         account:           The agent's account on the blockchain.
         prediction_market: An instance of PredictionMarketAdapter used for interacting with the
                            PredictionMarket smart contract.
+        has_bet:           List of booleans indicating whether or not the agent bet the last time
+                           place_bet was called.
     """
 
     DEFAULT_BETTING_AMOUNT = 1
@@ -22,6 +24,7 @@ class Agent:
         self.account = account
         self.prediction_market = PredictionMarketAdapter()
         self.logging = logging
+        self.has_bet = [False, False, False, False]
 
     def log(self, msg):
         if self.logging:
@@ -29,23 +32,32 @@ class Agent:
 
     def place_bet(self):
         predicted_consumptions = self.predict(NUM_PREDICTIONS)
+        if predicted_consumptions == None:
+            self.log('Will not bet during current betting round.')
+            self.has_bet += [False]
+            return
+
         self.prediction_market.place_bet(self.account, Agent.DEFAULT_BETTING_AMOUNT,
                                          predicted_consumptions)
         self.log('Placing a bet. Predictions: {0}.'.format(predicted_consumptions))
+        self.has_bet += [True]
 
     def rank_bet(self):
-        self.log('Ranking previous predictions.')
-        self.prediction_market.rank(self.account)
+        if self.has_bet[-3]:
+            self.log('Ranking previous predictions.')
+            self.prediction_market.rank(self.account)
 
     def collect_reward(self):
-        self.prediction_market.transfer_reward(self.account)
-        self.log('Collecting reward. Won?: {0}.'
-                 .format(self.prediction_market.get_winning_tier(self.account)))
+        if self.has_bet[-3]:
+            self.prediction_market.transfer_reward(self.account)
+            self.log('Collecting reward. Won?: {0}.'
+                    .format(self.prediction_market.get_winning_tier(self.account)))
 
     def predict(self, n):
         """
         Predict the aggregate energy consumption for the next n timestamps.
         Subclasses of Agent should override this to use their predictions algorithm.
+        Should return None if no predictions possible or the agent doesn't want to bet.
         """
         return [Agent.DEFAULT_PREDICTION] * n
 

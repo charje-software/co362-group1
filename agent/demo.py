@@ -1,4 +1,3 @@
-import time
 import pandas as pd
 
 from ar_agent import ArAgent
@@ -11,7 +10,6 @@ from oracle import Oracle
 START = pd.to_datetime('2014-01-28 00:00:00')
 END = pd.to_datetime('2014-02-07 23:30:00')
 # END = pd.to_datetime('2014-02-27 23:30:00')
-PERIOD_LENGTH = 0.0
 
 ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
             '0x4B516E6c8c3a5Ea97Ff7377d81Ea2238C46C5882',
@@ -37,38 +35,17 @@ agent5 = CheatingAgent(ACCOUNTS[4])
 agents = [agent1, agent2, agent3, agent4, agent5]
 oracle = Oracle()
 
+def is_midnight(date_time):
+    return date_time.minute == 0 and date_time.hour == 0
 
-def is_betting_time(date_time):
-    return date_time.minute == 0 and date_time.hour == 0 \
-           and date_time <= END - pd.Timedelta('2 days')
-
-
-def is_ranking_time(date_time):
-    return date_time.minute == 0 and date_time.hour == 0 \
-           and date_time >= START + pd.Timedelta('2 days')
-
-
-def is_collecting_time(date_time):
-    return date_time.minute == 0 and date_time.hour == 12 \
-           and date_time > START + pd.Timedelta('2 days')
-
-
-def is_midnight_or_noon(date_time):
-    return date_time.minute == 0 and (date_time.hour == 0 or date_time.hour == 12)
-
+def is_noon(date_time):
+    return date_time.minute == 0 and date_time.hour == 12
 
 def is_new_day(date_time):
-    return date_time.minute == 0 and date_time.hour == 0 and date_time > START
-
+    return is_midnight(date_time) and date_time > START
 
 def is_new_period(date_time):
     return date_time > START and date_time.minute % 30 == 0
-
-
-def is_bet_skip_time(date_time):
-    return date_time.minute == 0 and date_time.hour == 0 \
-           and date_time > END - pd.Timedelta('2 days')
-
 
 if __name__ == "__main__":
     for date_time in pd.date_range(start=START, end=END, freq='30min'):
@@ -81,31 +58,18 @@ if __name__ == "__main__":
             for agent in agents:
                 agent.update_aggregate_data()
 
-        if (is_midnight_or_noon(date_time)):
+        if (is_midnight(date_time) or is_noon(date_time)):
             print('-' * 59)
             print(' ' * 20 + str(date_time))
             print('-' * 59)
 
-        time.sleep(PERIOD_LENGTH / 4.0)
-
-        if is_betting_time(date_time):
+        if is_midnight(date_time):
             for agent in agents:
                 agent.place_bet()
-        # TODO: find better way to do this. this is needed because agent has no
-        #       sense of time
-        elif is_bet_skip_time(date_time):
-            agent5.has_bet += [False]
 
-        time.sleep(PERIOD_LENGTH / 4.0)
-
-        if is_ranking_time(date_time):
             for agent in agents:
                 agent.rank_bet()
 
-        time.sleep(PERIOD_LENGTH / 4.0)
-
-        if is_collecting_time(date_time):
+        elif is_noon(date_time):
             for agent in agents:
                 agent.collect_reward()
-
-        time.sleep(PERIOD_LENGTH / 4.0)

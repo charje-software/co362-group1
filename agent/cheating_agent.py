@@ -10,45 +10,25 @@ class CheatingAgent(Agent):
        and doesn't have its own model.
 
     Attributes:
-        has_bet: list of booleans indicating whether or not the agent bet the last time
-                 place_bet was called
         history: past aggregate energy consumption (as a list)
     """
 
     def __init__(self, account=ACCOUNT_0):
         super(CheatingAgent, self).__init__(account)
-        self.has_bet = [False]
         self.history = []
 
     """
     Note that the cheating agent assumes that rank_bet is called after place_bet on any day.
     """
 
-    def place_bet(self):
-        """
-        Override place_bet to cheat.
-        """
+    def predict(self, n):
         cheat = self.cheat()
         if not cheat:
-            self.has_bet += [False]
-            self.log('Will not bet during current betting round.')
-            return
+            return None
 
         predicted_consumptions, helpers = cheat
-
-        self.log('Placing a bet. Predictions: {0}.'.format(predicted_consumptions))
         self.log('Thanks :) {0}'.format(helpers))
-        self.prediction_market.place_bet(self.account, Agent.DEFAULT_BETTING_AMOUNT,
-                                         predicted_consumptions)
-        self.has_bet += [True]
-
-    def rank_bet(self):
-        if self.has_bet[-3]:
-            super(CheatingAgent, self).rank_bet()
-
-    def collect_reward(self):
-        if self.has_bet[-3]:
-            super(CheatingAgent, self).collect_reward()
+        return predicted_consumptions
 
     def cheat(self):
         """

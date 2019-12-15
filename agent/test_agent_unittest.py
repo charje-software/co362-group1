@@ -30,6 +30,7 @@ class TestAgent(TestCase):
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)
+            agent.has_bet = [True, False, False]
 
             agent.rank_bet()
 
@@ -40,11 +41,31 @@ class TestAgent(TestCase):
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)
+            agent.has_bet = [True, False, False]
 
             agent.collect_reward()
 
             mock_prediction_market.transfer_reward.assert_called_once_with(account)
 
+    def test_no_rank_if_no_bet(self):
+        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+            mock_prediction_market = MockPredictionMarket.return_value
+            account = '42'
+            agent = Agent(account, logging=False)
+
+            agent.rank_bet()
+
+            mock_prediction_market.rank.assert_not_called()
+
+    def test_no_transfer_if_no_bet(self):
+        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+            mock_prediction_market = MockPredictionMarket.return_value
+            account = '42'
+            agent = Agent(account, logging=False)
+
+            agent.collect_reward()
+
+            mock_prediction_market.transfer_reward.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
