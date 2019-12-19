@@ -55,45 +55,6 @@ class MetricsCalculator:
         plt.legend()
         fig.savefig('metrics/' + model_name.split('.')[0] + '-plot.png')
 
-    # currently specific to ArRetrainDecisionAgent
-    def plot_decisions(self, agent, model_name):
-        predictions = []
-        skipped = False
-        with mock.patch('agent.PredictionMarketAdapter.get_latest_aggregate_consumptions') \
-                as mock_get_latest_aggregate_consumptions:
-            for i in range(len(self.actual) // 48):
-                # get predictions for 48 values at a time from agent
-                preds = agent.predict(NUM_PREDICTIONS)
-                if preds is not None:
-                    predictions += preds
-                else:
-                    predictions += [-1] * NUM_PREDICTIONS
-                    skipped = True
-
-                for j in range(48):
-                    agent.update_private_data()
-
-                mock_get_latest_aggregate_consumptions.return_value = \
-                    self.actual[i * 48: (i + 1) * 48]
-                agent.update_aggregate_data()
-
-        assert (len(predictions) == len(self.actual))
-
-        # generate graphs
-        fig = plt.figure()
-        plt.plot(self.actual, label='actual')
-        plt.plot(predictions, color='red', label='predicted')
-
-        # calculate MSE
-        if not skipped:
-            mse = mean_squared_error(self.actual, predictions)
-            plt.title(model_name + ' MSE= ' + ('%.2f' % mse))
-        else:
-            plt.title(model_name + ' (MSE not calculated)')
-
-        plt.legend()
-        fig.savefig('metrics/' + model_name.split('.')[0] + '-plot.png')
-
 
 if __name__ == "__main__":
     metrics_calculator = MetricsCalculator()
