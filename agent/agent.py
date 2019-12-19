@@ -32,7 +32,7 @@ class Agent:
 
     def place_bet(self):
         predicted_consumptions = self.predict(NUM_PREDICTIONS)
-        if predicted_consumptions == None:
+        if predicted_consumptions is None:
             self.log('Will not bet during current betting round.')
             self.has_bet += [False]
             return
@@ -51,7 +51,7 @@ class Agent:
         if self.has_bet[-3]:
             self.prediction_market.transfer_reward(self.account)
             self.log('Collecting reward. Won?: {0}.'
-                    .format(self.prediction_market.get_winning_tier(self.account)))
+                     .format(self.prediction_market.get_winning_tier(self.account)))
 
     def predict(self, n):
         """

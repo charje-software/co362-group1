@@ -2,7 +2,7 @@ import pandas as pd
 from statsmodels.tsa.ar_model import AR
 
 from agent import Agent
-from prediction_market_adapter import ACCOUNT_0
+from prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS
 
 
 class ArRetrainAgent(Agent):
@@ -21,11 +21,12 @@ class ArRetrainAgent(Agent):
         self.model = AR(self.history).fit()
 
     def predict(self, n):
-        # need to predict all starting from START, but only return last n
+        # need to predict all starting from train_amt, but only return last n
+        # there is a 1 day offset between the period predicted for and the training data
         train_amt = len(self.history)
         predictions = self.model.predict(start=train_amt,
-                                         end=train_amt+(n-1),
-                                         dynamic=False)
+                                         end=train_amt+NUM_PREDICTIONS+(n-1),
+                                         dynamic=False)[-n:]
         return list(map(int, predictions))
 
     def update_aggregate_data(self):

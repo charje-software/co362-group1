@@ -2,13 +2,14 @@ import pandas as pd
 
 from ar_agent import ArAgent
 from ar_retrain_agent import ArRetrainAgent
+from ar_retrain_decision_agent import ArRetrainDecisionAgent
 from cheating_agent import CheatingAgent
 from lstm_agent import LstmAgent
 from lstm_multi_agent import LstmMultiAgent
 from oracle import Oracle
 
 START = pd.to_datetime('2014-01-28 00:00:00')
-END = pd.to_datetime('2014-02-07 23:30:00')
+END = pd.to_datetime('2014-02-14 23:30:00')
 # END = pd.to_datetime('2014-02-27 23:30:00')
 
 ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
@@ -23,29 +24,35 @@ ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
 
 agent1 = ArAgent(ACCOUNTS[0])
 agent2 = ArRetrainAgent(ACCOUNTS[1])
-agent3 = LstmAgent(ACCOUNTS[2])
+agent3 = ArRetrainDecisionAgent(ACCOUNTS[2])
+agent4 = LstmAgent(ACCOUNTS[3])
 household_2_normalise_values = [1.16123236e+03, 4.24041018e+02, 2.47572234e-01, 2.41049693e-01]
-agent4 = LstmMultiAgent(
-    account=ACCOUNTS[3],
+agent5 = LstmMultiAgent(
+    account=ACCOUNTS[4],
     model_file_name='./models/LSTMmultivariate.h5',
     household_name='MAC000002',
     normalise_values=household_2_normalise_values)
-agent5 = CheatingAgent(ACCOUNTS[4])
+agent6 = CheatingAgent(ACCOUNTS[5])
 # important that cheating agent is last / near end
-agents = [agent1, agent2, agent3, agent4, agent5]
+agents = [agent1, agent2, agent3, agent4, agent5, agent6]
 oracle = Oracle()
+
 
 def is_midnight(date_time):
     return date_time.minute == 0 and date_time.hour == 0
 
+
 def is_noon(date_time):
     return date_time.minute == 0 and date_time.hour == 12
+
 
 def is_new_day(date_time):
     return is_midnight(date_time) and date_time > START
 
+
 def is_new_period(date_time):
     return date_time > START and date_time.minute % 30 == 0
+
 
 if __name__ == "__main__":
     for date_time in pd.date_range(start=START, end=END, freq='30min'):

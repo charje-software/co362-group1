@@ -67,5 +67,6 @@ class TestAgent(TestCase):
 
             mock_prediction_market.transfer_reward.assert_not_called()
 
+
 if __name__ == '__main__':
     unittest.main()
