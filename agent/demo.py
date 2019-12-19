@@ -1,4 +1,5 @@
 import pandas as pd
+from pynput import keyboard
 
 from agents.ar_agent import ArAgent
 from agents.ar_retrain_agent import ArRetrainAgent
@@ -55,7 +56,24 @@ def is_new_period(date_time):
     return date_time > START and date_time.minute % 30 == 0
 
 
+def get_input_and_update(forever, day, half_day):
+    key = input('Continue until end [e], the next day [d], half_day' +
+                ' [h], period [otherwise]? ... ')
+    if key == 'e':
+        forever = True
+    elif key == 'd':
+        day = True
+    elif key == 'h':
+        half_day = True
+    return forever, day, half_day
+
+
 if __name__ == "__main__":
+    # flags set by keyboard input
+    forever = False
+    day = False
+    half_day = False
+
     for date_time in pd.date_range(start=START, end=END, freq='30min'):
         if is_new_period(date_time):
             oracle.update_consumption()
@@ -63,13 +81,18 @@ if __name__ == "__main__":
                 agent.update_per_period()
 
         if is_new_day(date_time):
+            day = False
             for agent in agents:
                 agent.update_daily()
 
         if (is_midnight(date_time) or is_noon(date_time)):
+            half_day = False
             print('-' * 59)
             print(' ' * 20 + str(date_time))
             print('-' * 59)
+
+        if not forever and not day and not half_day:
+            forever, day, half_day = get_input_and_update(forever, day, half_day)
 
         if is_midnight(date_time):
             if date_time < END - pd.Timedelta('2days'):
