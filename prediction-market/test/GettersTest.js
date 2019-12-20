@@ -1,6 +1,29 @@
 const PredictionMarket = artifacts.require("PredictionMarket");
 
+STAGE_LENGTH = 24
+PREDICTIONS_PER_BET = 48
+
 contract("Getters test", async accounts => {
+  ORACLE = accounts[0];
+  AGENT1 = accounts[1];
+  AGENT2 = accounts[2];
+
+  BET_AMOUNT = 400;
+
+  BASE_WINNING_SCALE = 0;
+  MID_TIER_WINNING_SCALE = 1;
+  TOP_TIER_WINNING_SCALE = 3;
+
+  AGENT1_PREDICTIONS = [];
+  AGENT2_PREDICTIONS = [];
+  AGENT1_PREDICTION = 450;
+  AGENT2_PREDICTION = 400;
+  for (var i = 0; i < PREDICTIONS_PER_BET; i++) {
+    AGENT1_PREDICTIONS.push(AGENT1_PREDICTION + i);
+    AGENT2_PREDICTIONS.push(AGENT2_PREDICTION + i);
+  }
+  ORACLE_CONSUMPTION = 500;
+
   let pm
 
   beforeEach('setup contract', async function () {
