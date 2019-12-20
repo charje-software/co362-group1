@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Fab from '@material-ui/core/Fab';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Tooltip from '@material-ui/core/Tooltip';
+import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 
 class AgentBets extends Component {
   constructor(props, context) {
@@ -16,6 +20,8 @@ class AgentBets extends Component {
     this.betAmountsDataKey = this.methods["getBetAmountsForAgent"].cacheCall({from: this.props.accounts[0]});
     this.betWinningScalesDataKey = this.methods["getBetWinningScalesForAgent"].cacheCall({from: this.props.accounts[0]});
     this.betTimestampsDataKey = this.methods["getBetTimestampsForAgent"].cacheCall({from: this.props.accounts[0]});
+    this.canClaimDataKey = this.methods["canClaim"].cacheCall(this.props.accounts[0]);
+    this.canRankDataKey = this.methods["canRank"].cacheCall(this.props.accounts[0]);
   }
 
   hasFetchedData() {
@@ -29,15 +35,73 @@ class AgentBets extends Component {
     return false;
   }
 
+  // Gradient component used for the icons in the buttons
+  svgGradient = svgProps => {
+    return (
+      <svg {...svgProps}>
+        <defs>
+          <linearGradient id="gradient1">
+            <stop offset="30%" stopColor="#d91a1a" />
+            <stop offset="70%" stopColor="#4e036e" />
+          </linearGradient>
+        </defs>
+        {React.cloneElement(svgProps.children[0], {
+          fill: 'url(#gradient1)',
+        })}
+      </svg>
+    );
+  }
+
+  onClickClaim = async () => {
+    await this.methods["claimWinnings"].cacheSend();
+  }
+
+  onClickRank = async () => {
+    await this.methods["rank"].cacheSend();
+  }
+
+  renderRankingStageOptions() {
+    var button;
+
+    if (this.canRankDataKey in this.props.PredictionMarket.canRank) {
+      if (this.props.PredictionMarket.canRank[this.canRankDataKey].value) {
+        button = (
+          <Tooltip title="Rank Bet">
+            <Fab size="small" onClick={this.onClickRank} style={fabStyle}>
+              <TrendingUpIcon style={{width: 20, height: 20}} component={this.svgGradient} />
+            </Fab>
+          </Tooltip>
+        )
+      }
+    } else if (this.canClaimDataKey in this.props.PredictionMarket.canClaim) {
+      if (this.props.PredictionMarket.canClaim[this.canClaimDataKey].value) {
+        button = (
+          <Tooltip title="Claim Winnings">
+            <Fab size="small" onClick={this.onClickRank} style={fabStyle}>
+              <AttachMoneyIcon style={{width: 20, height: 20}} component={this.svgGradient} />
+            </Fab>
+          </Tooltip>
+        )
+      }
+    }
+    return (
+      <div style={{display: 'flex', alignItems: 'center'}}>
+        <div style={{color: 'purple', fontWeight: 'bold'}}>RANKING</div>
+        {button}
+      </div>
+    )
+  }
+
   processRowData(betPredictions, betAmounts, betWinningScales, betTimestamps) {
     let rows = [];
     for (let i = 0; i < 7; i++) {
       // Check timestamp !== 0 to see if bet exists for that period
       if (betTimestamps[i] !==  '0') {
-        let betStatus = 'RANK CATEGORY ' + betWinningScales[i];
-        if (i === 0) betStatus = 'BETTING';
-        if (i === 1) betStatus = 'WAITING';
-        if (i === 2) betStatus = 'CLAIMING';
+        let betStatus = <div style={{color: 'green', fontWeight: 'bold'}}>{'WON - CATEGORY ' + betWinningScales[i]}</div>;
+        if (betWinningScales[i] === '0') betStatus = <div style={{color: 'red', fontWeight: 'bold'}}>LOST</div>;
+        if (i === 0) betStatus = <div style={{color: 'blue', fontWeight: 'bold'}}>BETTING</div>;
+        if (i === 1) betStatus = <div style={{color: 'navy', fontWeight: 'bold'}}>WAITING</div>;
+        if (i === 2) betStatus = this.renderRankingStageOptions();
         rows.push([new Date(betTimestamps[i] * 1000).toUTCString(),
                      betAmounts[i] / (10 ** 18),
                      betPredictions[i],
@@ -112,6 +176,13 @@ class AgentBets extends Component {
 const tableTitle = {
   fontWeight: 900,
   fontFamily: 'Poppins',
+};
+
+const fabStyle = {
+  margin: 10,
+  width: 35,
+  height: 35,
+  backgroundColor: 'white',
 };
 
 AgentBets.contextTypes = {
