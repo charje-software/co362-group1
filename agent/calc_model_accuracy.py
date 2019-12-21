@@ -24,7 +24,7 @@ class MetricsCalculator:
                 as mock_get_latest_aggregate_consumptions:
             for i in range(len(self.actual) // 48):
                 # get predictions for 48 values at a time from agent
-                preds = agent.predict(NUM_PREDICTIONS)
+                preds = agent.predict_for_tomorrow()
                 if preds is not None:
                     predictions += preds
                 else:
@@ -32,11 +32,11 @@ class MetricsCalculator:
                     skipped = True
 
                 for j in range(48):
-                    agent.update_private_data()
+                    agent.update_per_period()
 
                 mock_get_latest_aggregate_consumptions.return_value = \
                     self.actual[i * 48: (i + 1) * 48]
-                agent.update_aggregate_data()
+                agent.update_daily()
 
         assert (len(predictions) == len(self.actual))
 

@@ -59,11 +59,11 @@ if __name__ == "__main__":
         if is_new_period(date_time):
             oracle.update_consumption()
             for agent in agents:
-                agent.update_private_data()
+                agent.update_per_period()
 
         if is_new_day(date_time):
             for agent in agents:
-                agent.update_aggregate_data()
+                agent.update_daily()
 
         if (is_midnight(date_time) or is_noon(date_time)):
             print('-' * 59)

@@ -12,23 +12,18 @@ class ArRetrainAgent(Agent):
     Attributes:
         model: an autoregression model trained each day on all available history
                used for predicting future aggregate energy consumption.
-        history: past aggregate energy consumption (as a list)
     """
 
     def __init__(self, account=ACCOUNT_0):
         super(ArRetrainAgent, self).__init__(account)
-        self.history = list(pd.read_pickle('./data/agg_history.pkl').aggregate_consumption)
-        self.model = AR(self.history).fit()
+        self.model = AR(self.aggregate_history).fit()
 
-    def predict(self, n):
-        # need to predict all starting from train_amt, but only return last n
+    def predict_for_tomorrow(self):
+        # need to predict all starting from train_amt, but only return last NUM_PREDICTIONS
         # there is a 1 day offset between the period predicted for and the training data
-        train_amt = len(self.history)
+        train_amt = len(self.aggregate_history)
+        self.model = AR(self.aggregate_history).fit()
         predictions = self.model.predict(start=train_amt,
-                                         end=train_amt+NUM_PREDICTIONS+(n-1),
-                                         dynamic=False)[-n:]
+                                         end=train_amt+2*NUM_PREDICTIONS-1,
+                                         dynamic=False)[-NUM_PREDICTIONS:]
         return list(map(int, predictions))
-
-    def update_aggregate_data(self):
-        self.history += self.prediction_market.get_latest_aggregate_consumptions()
-        self.model = AR(self.history).fit()

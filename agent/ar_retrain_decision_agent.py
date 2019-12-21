@@ -13,35 +13,33 @@ class ArRetrainDecisionAgent(Agent):
        successful model.
 
     Attributes:
-        models: list of autoregression models trained each day on all available
-               history and the length of that history. The list only contains models trained
-               to predict for days that haven't passed yet. Newest first.
+        models: list of dictionaries of models, their train amount, and prediction for
+                their respective betting round (in contrast to prediction_history, regardless
+                of whether or not the agent bet). The list only contains models trained
+                to predict for days that haven't passed yet. Newest first.
         last_successful_model: last model that would have won top tier.
         to_predict_for: first time slice to predict for.
-        history: past aggregate energy consumption (as a list).
     """
     MODEL_SIMILARITY_THRESHOLD = 70
 
     def __init__(self, account=ACCOUNT_0):
         super(ArRetrainDecisionAgent, self).__init__(account)
-        self.history = list(pd.read_pickle('./data/agg_history.pkl').aggregate_consumption)
-        # None appended as we are not predicting for first day
-        self.models = [{'model': AR(self.history).fit(), 'train_amt': len(self.history)}, None]
+        # None as we are not predicting for first day or day before
+        self.models = [None, None]
         self.last_successful_model = None
-        self.to_predict_for = len(self.history) + NUM_PREDICTIONS
+        self.to_predict_for = len(self.aggregate_history) + NUM_PREDICTIONS
 
-    def predict(self, n):
-        if n != NUM_PREDICTIONS:
-            return None
+    def predict_for_tomorrow(self):
+        self.update_models()
 
         # corresponds to first time slice of next prediciton range
         self.to_predict_for += NUM_PREDICTIONS
 
-        # predict all but only take last n
+        # predict all but only take last NUM_PREDICTIONS
         predictions = self.models[0]['model'].predict(
                                     start=self.models[0]['train_amt'],
                                     end=self.to_predict_for-1,
-                                    dynamic=False)[-n:]
+                                    dynamic=False)[-NUM_PREDICTIONS:]
         self.models[0]['predictions'] = predictions
 
         if self.last_successful_model is None:
@@ -51,7 +49,7 @@ class ArRetrainDecisionAgent(Agent):
         last_successful_model_predictions = self.last_successful_model['model'].predict(
                                          start=self.last_successful_model['train_amt'],
                                          end=self.to_predict_for-1,
-                                         dynamic=False)[-n:]
+                                         dynamic=False)[-NUM_PREDICTIONS:]
 
         mae = mean_absolute_error(predictions, last_successful_model_predictions)
         if mae > ArRetrainDecisionAgent.MODEL_SIMILARITY_THRESHOLD:
@@ -59,17 +57,16 @@ class ArRetrainDecisionAgent(Agent):
 
         return list(map(int, predictions))
 
-    def update_aggregate_data(self):
-        self.history += self.prediction_market.get_latest_aggregate_consumptions()
-        self.update_models()
-
     def update_models(self):
+        """
+        Updates current model and last successful model.
+        """
         # only None at the start
         if self.models[-1] is not None:
-            mae = mean_absolute_error(self.history[-NUM_PREDICTIONS:],
+            mae = mean_absolute_error(self.aggregate_history[-NUM_PREDICTIONS:],
                                       self.models[-1]['predictions'])
             if mae <= TOP_TIER_THRESHOLD:
                 self.last_successful_model = self.models[-1]
 
-        self.models = [{'model': AR(self.history).fit(),
-                        'train_amt': len(self.history)}] + self.models[:-1]
+        self.models = [{'model': AR(self.aggregate_history).fit(),
+                        'train_amt': len(self.aggregate_history)}] + self.models[:-1]

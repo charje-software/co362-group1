@@ -11,8 +11,8 @@ class Agent:
 
     The Agent base class outlines core interaction between the agent and the prediction
     market. It should NOT be used for betting as it is, as it simply uses a constant
-    default prediction. Subclasses should override place_bet's helper predict and other
-    methods as necessary.
+    default prediction. Subclasses should override place_bet's helper predict_for_tomorrow
+    and other methods as necessary.
 
     Agent assumes that place_bet, rank_bet, collect_reward, update_per_period, update_daily
     are called every day with the following frequencies and order by any script that
@@ -57,7 +57,7 @@ class Agent:
         """
         Places a bet on behalf of the Agent if the agent wants to bet.
         """
-        predicted_consumptions = self.predict()
+        predicted_consumptions = self.predict_for_tomorrow()
 
         if predicted_consumptions is None:
             self.log('Will not bet during current betting round.')
@@ -66,7 +66,7 @@ class Agent:
                                              predicted_consumptions)
             self.log('Placing a bet. Predictions: {0}.'.format(predicted_consumptions))
 
-        self.prediction_history += predicted_consumptions
+        self.prediction_history.append(predicted_consumptions)
 
     def rank_bet(self):
         """
@@ -95,7 +95,7 @@ class Agent:
                 self.prediction_market.transfer_reward(self.account)
                 self.log('Collecting reward. Won?: {0}.'.format(tier))
 
-    def predict(self):
+    def predict_for_tomorrow(self):
         """
         Subclasses of Agent should override this to use their prediction algorithm.
 

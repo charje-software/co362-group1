@@ -1,7 +1,7 @@
 from statsmodels.tsa.ar_model import ARResults
 
 from agent import Agent
-from prediction_market_adapter import ACCOUNT_0
+from prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS
 
 
 class ArAgent(Agent):
@@ -21,10 +21,10 @@ class ArAgent(Agent):
         self.predictions_count = 0
         self.model = ARResults.load(model_file_name)
 
-    def predict(self, n):
-        # need to predict all starting from START, but only return last n
+    def predict_for_tomorrow(self):
+        # need to predict all starting from START, but only return last NUM_PREDICTIONS
         predictions = self.model.predict(start=ArAgent.START,
-                                         end=ArAgent.START+self.predictions_count+(n),
-                                         dynamic=False)
-        self.predictions_count += n
-        return list(map(int, predictions[-n:]))
+                                         end=ArAgent.START+self.predictions_count+NUM_PREDICTIONS,
+                                         dynamic=False)[-NUM_PREDICTIONS:]
+        self.predictions_count += NUM_PREDICTIONS
+        return list(map(int, predictions))
