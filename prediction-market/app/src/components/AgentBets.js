@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import ClaimingIcon from '@material-ui/icons/MonetizationOn';
 import Fab from '@material-ui/core/Fab';
+import RankingIcon from '@material-ui/icons/BarChart';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Tooltip from '@material-ui/core/Tooltip';
-import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 
 class AgentBets extends Component {
   constructor(props, context) {
@@ -68,7 +68,7 @@ class AgentBets extends Component {
         button = (
           <Tooltip title="Rank Bet">
             <Fab size="small" onClick={this.onClickRank} style={fabStyle}>
-              <TrendingUpIcon style={{width: 20, height: 20}} component={this.svgGradient} />
+              <RankingIcon style={{width: 20, height: 20}} component={this.svgGradient} />
             </Fab>
           </Tooltip>
         )
@@ -78,7 +78,7 @@ class AgentBets extends Component {
         button = (
           <Tooltip title="Claim Winnings">
             <Fab size="small" onClick={this.onClickRank} style={fabStyle}>
-              <AttachMoneyIcon style={{width: 20, height: 20}} component={this.svgGradient} />
+              <ClaimingIcon style={{width: 20, height: 20}} component={this.svgGradient} />
             </Fab>
           </Tooltip>
         )
