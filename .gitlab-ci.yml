@@ -108,7 +108,10 @@ test_prediction_market:
    - build_prediction_market
   script:
    - cd prediction-market/
-   - ./node_modules/truffle/build/cli.bundled.js test --network testing
+   - ./node_modules/truffle/build/cli.bundled.js test --network testing test/PredictionMarketTest.js
+   - ./node_modules/truffle/build/cli.bundled.js test --network testing test/GettersTest.js
+   - ./node_modules/truffle/build/cli.bundled.js test --network testing test/NoWinnersTest.js
+   - ./node_modules/truffle/build/cli.bundled.js test --network testing test/OwnersTest.js
   rules:
    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
      when: on_success
