@@ -8,16 +8,16 @@ import NavigationIcon from '@material-ui/icons/Navigation';
 import TextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
 
-export default class MakeBetModal extends React.Component {
+export default class UpdateConsumptionModal extends React.Component {
 
   constructor(props, context) {
     super(props);
     this.drizzle = context.drizzle;
     this.state = {
       open: false, // for the modal opening/closing
-      predictions: '', // 48 data point prediction
-      betAmount: '0' // Amount to bet in ether
+      consumption: '0' // consumption value being fed in
     };
+    this.currTimePeriodDataKey = this.drizzle.contracts.PredictionMarket.methods["currTimePeriod"].cacheCall();
   }
 
   openModal = () => {
@@ -28,29 +28,16 @@ export default class MakeBetModal extends React.Component {
     this.setState({open: false});
   };
 
-  onClickBet = async () => {
-    const predictions = this.parsePredictions(this.state.predictions);
-
-    // Converting betAmount to Wei and handling errors
-    const betAmount = parseInt(this.state.betAmount) * Math.pow(10, 18);
-    if (isNaN(betAmount) || betAmount === 0) return;
-
-    const data = {value: betAmount.toString()}
+  onClickUpdate = async () => {
+    if (isNaN(this.state.consumption)) return;
 
     // Calling function - will prompt MetaMask verification
-    await this.drizzle.contracts.PredictionMarket.methods["placeBet"]
-              .cacheSend(predictions, data);
+    await this.drizzle.contracts.PredictionMarket.methods["updateConsumption"]
+              .cacheSend(this.state.consumption);
 
     // Reset form and close modal
-    this.setState({predictions: '', betAmount: '0'});
+    this.setState({consumption: '0'});
     this.closeModal();
-  }
-
-  parsePredictions(input) {
-    // input is in form "1, 2, 3...48"
-    // output is in form [1, 2, 3, ...48]
-    return input.replace(/\s/g,'') // remove whitespace
-                .split(","); // split entries by comma
   }
 
   // Gradient component used for the icons in the buttons
@@ -70,7 +57,7 @@ export default class MakeBetModal extends React.Component {
     );
   }
 
-  renderMakeBetButton() {
+  renderUpdateConsumptionButton() {
     return (
       <Fab variant="extended"
         onClick={this.openModal}
@@ -80,12 +67,24 @@ export default class MakeBetModal extends React.Component {
           color="inherit"
           component={this.svgGradient}
         />
-        Make Bet
+        Update Consumption
       </Fab>
     );
   }
 
-  renderMakeBetModal() {
+  getPeriodBeingUpdated() {
+    if (this.currTimePeriodDataKey in this.props.predictionMarket.currTimePeriod) {
+      const currTimePeriod = this.props.predictionMarket.currTimePeriod[this.currTimePeriodDataKey].value;
+      const hour = Math.floor(currTimePeriod / 2);
+      if (currTimePeriod % 2 === 0) {
+        return ` spanning time period ${hour}:00 - ${hour}:30.`;
+      }
+      return ` spanning time period ${hour}:30 - ${(hour + 1) % 24}:00.`;
+    }
+    return ".";
+  }
+
+  renderUpdateConsumptionModal() {
     return (
       <Modal
         open={this.state.open}
@@ -99,42 +98,30 @@ export default class MakeBetModal extends React.Component {
       >
         <Fade in={this.state.open}>
           <div style={formStyle}>
-            <h2>Predict the energy prices of tomorrow.</h2>
-            <p>A prediction consists of 48 data points throughout the day.
-              Please separate your predictions with a comma.</p>
-            <p>The first prediction is the consumption for 00:30am,
-              the second is for 1:00am and so on.</p>
-            <TextField
-              label="Predictions"
-              multiline
-              rowsMax="4"
-              fullWidth={true}
-              value={this.state.predictions}
-              onChange={input => this.setState({predictions: input.target.value})}
-              margin="normal"
-              variant="outlined"
-            />
+            <h2>Input true values of consumption.</h2>
+            <p>Actual consumption values should be updated by the oracle at 30 minute intervals throughout the day.</p>
+            <p>Manually update the total consumption for the next 30 minute interval{this.getPeriodBeingUpdated()}</p>
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
               <TextField
-                label="ETH"
+                label="Consumption (kWh)"
                 multiline
                 rowsMax="1"
-                value={this.state.betAmount}
-                error={isNaN(parseInt(this.state.betAmount))}
-                helperText={isNaN(parseInt(this.state.betAmount)) ? 'Must be a number' : ''}
-                onChange={input => this.setState({betAmount: input.target.value})}
+                value={this.state.consumption}
+                error={isNaN(parseInt(this.state.consumption))}
+                helperText={isNaN(parseInt(this.state.consumption)) ? 'Must be a number' : ''}
+                onChange={input => this.setState({consumption: input.target.value})}
                 margin="normal"
                 variant="outlined"
               />
               <Fab variant="extended"
                 style={fabStyle}
-                onClick={this.onClickBet}
+                onClick={this.onClickUpdate}
               >
                 <NavigationIcon
                   style={iconStyle}
                   component={this.svgGradient}
                 />
-                BET
+                UPDATE
               </Fab>
             </div>
           </div>
@@ -146,8 +133,8 @@ export default class MakeBetModal extends React.Component {
   render() {
     return (
       <div>
-        {this.renderMakeBetButton()}
-        {this.renderMakeBetModal()}
+        {this.renderUpdateConsumptionButton()}
+        {this.renderUpdateConsumptionModal()}
       </div>
     );
   }
@@ -177,6 +164,6 @@ const iconStyle = {
   marginRight: 5
 };
 
-MakeBetModal.contextTypes = {
+UpdateConsumptionModal.contextTypes = {
   drizzle: PropTypes.object
 }

@@ -112,6 +112,8 @@ contract PredictionMarket is Ownable {
     for (uint256 i = 0; i < PREDICTIONS_PER_BET; i++) {
       averagePredictionsHistory[currDay + 1][i] = averagePredictionsHistory[currDay + 1][i].add(predictions[i]);
     }
+
+    groupCountHistory[currDay + 2]++;
   }
 
   // Called by betting agent to rank themselves. Sets `win` to true if
@@ -179,8 +181,6 @@ contract PredictionMarket is Ownable {
     if (currTimePeriod == PREDICTIONS_PER_BET) {
       // Recording list of betting agents in group history
       GroupInfo storage bettingGroupInfo = stageToGroupInfo[BETTING];
-      groupCountHistory[currDay + 1] = bettingGroupInfo.agents.length;
-
       GroupInfo storage claimingGroupInfo = stageToGroupInfo[CLAIMING];
       address[] storage agents = claimingGroupInfo.agents;
       mapping(address => Bet) storage group = stageToGroup(CLAIMING);
@@ -226,8 +226,9 @@ contract PredictionMarket is Ownable {
 
   // Get average prediction for (day ahead - day offset)
   function getAveragePredictions(uint256 dayOffset) public view returns(uint256[48] memory) {
-    uint256 numAgents = groupCountHistory[currDay + 1 - dayOffset];
+    uint256 numAgents = groupCountHistory[currDay + 2 - dayOffset];
     uint256[48] memory averagePredictions;
+    if (numAgents == 0) return averagePredictions;
     for (uint256 i = 0; i < PREDICTIONS_PER_BET; i++) {
       averagePredictions[i] = averagePredictionsHistory[currDay + 1 - dayOffset][i].div(numAgents);
     }
@@ -297,4 +298,5 @@ contract PredictionMarket is Ownable {
 
     return betTimestamps;
   }
+
 }
