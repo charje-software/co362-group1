@@ -21,7 +21,7 @@ class AgentBets extends Component {
   hasFetchedData() {
     const pm = this.props.PredictionMarket;
     if((this.betPredictionsDataKey in pm.getBetPredictionsForAgent)
-    && (this.betAmountsDataKey in pm.getBetAmountsForAgent)
+      && (this.betAmountsDataKey in pm.getBetAmountsForAgent)
       && (this.betWinningScalesDataKey in pm.getBetWinningScalesForAgent)
       && (this.betTimestampsDataKey in pm.getBetTimestampsForAgent)) {
       return true
@@ -117,4 +117,5 @@ const tableTitle = {
 AgentBets.contextTypes = {
   drizzle: PropTypes.object,
 };
+
 export default AgentBets

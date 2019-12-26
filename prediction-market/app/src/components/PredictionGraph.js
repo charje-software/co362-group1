@@ -14,13 +14,20 @@ class PredictionGraph extends React.Component {
       super(props);
       this.oracleDataKeys = [];
       this.agentPredictionDataKeys = [];
+      this.averagePredictionDataKeys = [];
       for (let i = 0; i < 7; i++) {
         this.oracleDataKeys.push(
           context.drizzle.contracts.PredictionMarket.methods["getOracleConsumptions"].cacheCall(i)
         );
-        this.agentPredictionDataKeys.push(
-          context.drizzle.contracts.PredictionMarket.methods["getPredictions"].cacheCall(i)
-        );
+        if (props.isOwner) {
+          this.averagePredictionDataKeys.push(
+            context.drizzle.contracts.PredictionMarket.methods["getAveragePredictions"].cacheCall(i)
+          );
+        } else {
+          this.agentPredictionDataKeys.push(
+            context.drizzle.contracts.PredictionMarket.methods["getPredictions"].cacheCall(i)
+          );
+        }
       }
       this.state = {currentDay: 1};
     }
@@ -29,8 +36,11 @@ class PredictionGraph extends React.Component {
       for (let i = 0; i < 7; i++) {
         const oracleDataKey = this.oracleDataKeys[i];
         const agentPredictionKey = this.agentPredictionDataKeys[i];
-        if (!(oracleDataKey in this.props.predictionMarket.getOracleConsumptions) ||
-            !(agentPredictionKey in this.props.predictionMarket.getPredictions)) {
+        const averagePredictionKey = this.averagePredictionDataKeys[i];
+        const pm = this.props.predictionMarket;
+        if (!(oracleDataKey in pm.getOracleConsumptions) &&
+            !(agentPredictionKey in pm.getPredictions) &&
+            !(averagePredictionKey in pm.getAveragePredictions)) {
           return false;
         }
       }
@@ -90,18 +100,31 @@ class PredictionGraph extends React.Component {
     }
 
     renderAgentPredictions(data) {
-      return (
-        <VictoryGroup data={data} style={{ data: { fill: 'navy' }}}>
-          <VictoryLine name='agentPredictions'/>
-          <VictoryScatter style={{data: {fill: 'navy'}}}/>
-        </VictoryGroup>
-      );
+      if (!this.props.isOwner) {
+        return (
+          <VictoryGroup data={data} style={scatterStyle}>
+            <VictoryLine name='agentPredictions'/>
+            <VictoryScatter style={scatterStyle}/>
+          </VictoryGroup>
+        );
+      }
+    }
+
+    renderAveragePredictions(data) {
+      if (this.props.isOwner) {
+        return (
+          <VictoryGroup data={data} style={{ data: { fill: '#4e036e' }}}>
+            <VictoryLine name='averagePredictions'/>
+            <VictoryScatter style={scatterStyle}/>
+          </VictoryGroup>
+        )
+      }
     }
 
     render() {
         if (!this.hasFetchedData()) {
           return (
-            <div style={{justifyContent: 'center', display: 'flex'}}>
+            <div style={{justifyContent: 'center', display: 'flex', paddingTop: 30}}>
               <CircularProgress size={150}/>
             </div>
           );
@@ -114,13 +137,22 @@ class PredictionGraph extends React.Component {
         var oracleData = this.formatData(pm.getOracleConsumptions[oracleDataKey].value);
 
         const agentPredictionKey = this.agentPredictionDataKeys[day];
-        var agentPredictionData =
-          this.formatData(pm.getPredictions[agentPredictionKey].value);
+        const averagePredictionKey = this.averagePredictionDataKeys[day];
+        var agentPredictionData = [];
+        var averagePredictionData = [];
+        var graphLineLabels = [];
+        if (this.props.isOwner) {
+          graphLineLabels = [{name: "Real Consumption"}, {name: "Average Prediction"}]
+          averagePredictionData = this.formatData(pm.getAveragePredictions[averagePredictionKey].value);
+        } else {
+          graphLineLabels = [{name: "Real Consumption"}, {name: "Your Prediction"}];
+          agentPredictionData = this.formatData(pm.getPredictions[agentPredictionKey].value);
+        }
 
         return (
           <div className="section" style={{maxWidth: '720px'}}>
             <h1 style={{fontFamily: 'Poppins', display: 'flex', justifyContent: 'center'}}>
-              Oracle Energy Consumptions
+              Energy Consumption Data
             </h1>
             <div style={{borderRadius: '8px', backgroundColor: 'white'}}>
               <VictoryChart
@@ -137,11 +169,12 @@ class PredictionGraph extends React.Component {
               >
                 <VictoryLegend
                   orientation="horizontal"
-                  colorScale={[ "#a10d2d", "navy" ]}
-                  data={[{name: "Real Consumption"}, {name: "Your Prediction" }]}
+                  colorScale={[ "#a10d2d", "navy"]}
+                  data={graphLineLabels}
                 />
                 {this.renderOraclePrices(oracleData)}
                 {this.renderAgentPredictions(agentPredictionData)}
+                {this.renderAveragePredictions(averagePredictionData)}
               </VictoryChart>
             </div>
             {this.renderGraphFooter()}
@@ -150,6 +183,7 @@ class PredictionGraph extends React.Component {
     }
 
     formatData(data) {
+      if (data === null) return;
       let formattedData = [];
       for (let i = 0; i < data.length; i++) {
         const y = parseInt(data[i]);
@@ -171,6 +205,12 @@ class PredictionGraph extends React.Component {
       return `${hour}:30`;
     }
 }
+
+const scatterStyle = {
+  data: {
+    fill: 'navy'
+  }
+};
 
 PredictionGraph.contextTypes = {
   drizzle: PropTypes.object
