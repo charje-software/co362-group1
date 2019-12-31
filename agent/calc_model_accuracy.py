@@ -15,7 +15,9 @@ from prediction_market_adapter import NUM_PREDICTIONS
 
 class MetricsCalculator:
     def __init__(self):
-        self.actual = list(pd.read_pickle('./data/agg_future.pkl').aggregate_consumption)
+        # discard first day as the first prediction period is the day after
+        self.actual = list(pd.read_pickle('./data/agg_future.pkl')
+                           .aggregate_consumption)[NUM_PREDICTIONS:]
 
     def calc_metrics(self, agent, model_name):
         predictions = []
