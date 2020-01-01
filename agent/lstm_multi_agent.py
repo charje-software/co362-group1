@@ -34,6 +34,7 @@ class LstmMultiAgent(Agent):
         self.agg_std_dev = normalise_values[1]
         self.mean = normalise_values[2]
         self.std_dev = normalise_values[3]
+        self.num_history_added = 0
 
     def predict_for_tomorrow(self):
         agg_history = np.array(self.aggregate_history[
@@ -47,7 +48,9 @@ class LstmMultiAgent(Agent):
         # batch data into format that model requires: 3D array of (?, 144, 2)
         agg_history = np.array(agg_history)
         my_history = np.array(history)
-        indices = range(0-LstmMultiAgent.NUM_HISTORIC_DATA, 0)
+        # offset to make sure that you take an exact 3 days starting from start of day
+        offset = self.num_history_added % NUM_PREDICTIONS
+        indices = range(0-LstmMultiAgent.NUM_HISTORIC_DATA-offset, 0-offset)
         tuple = []
         for j in range(len(agg_history[indices])):
             tuple.append([agg_history[indices][j], history[indices][j]])
@@ -63,3 +66,4 @@ class LstmMultiAgent(Agent):
 
     def update_per_period(self):
         self.my_history.append(self.meter.get_latest_consumption())
+        self.num_history_added += 1
