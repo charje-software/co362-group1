@@ -76,9 +76,15 @@ class Agent:
         if self.prediction_history[-3] is not None:
             mae = mean_absolute_error(self.aggregate_history[-NUM_PREDICTIONS:],
                                       self.prediction_history[-3])
+
             if mae < MID_TIER_THRESHOLD:
-                self.log('Ranking previous predictions.')
+                tier = 'top' if mae < TOP_TIER_THRESHOLD else 'mid'
+                self.log('Ranking previous predictions. Expecting {1} tier (MAE = {0:.2f}).'
+                         .format(mae, tier))
                 self.prediction_market.rank(self.account)
+            else:
+                self.log('No need to ask for ranking. Expecting to lose (MAE = {0:.2f}).'
+                         .format(mae))
 
     def collect_reward(self):
         """

@@ -23,8 +23,8 @@ class LstmMultiAgent(Agent):
     NUM_HISTORIC_DATA = 144
 
     def __init__(self, model_file_name, household_name, normalise_values,
-                 account=ACCOUNT_0):
-        super(LstmMultiAgent, self).__init__(account)
+                 account=ACCOUNT_0, logging=True):
+        super(LstmMultiAgent, self).__init__(account, logging)
         self.predictions_count = 0
         self.model = load_model(model_file_name)
         data_file_name = './data/household_' + household_name + '_history.pkl'
@@ -35,6 +35,7 @@ class LstmMultiAgent(Agent):
         self.mean = normalise_values[2]
         self.std_dev = normalise_values[3]
         self.num_history_added = 0
+        self.log('LstmMultiAgent for household {0}'.format(household_name))
 
     def predict_for_tomorrow(self):
         agg_history = np.array(self.aggregate_history[

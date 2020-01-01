@@ -16,10 +16,11 @@ class ArAgent(Agent):
 
     START = 38237  # first time point to predict for relative to the first entry used for training
 
-    def __init__(self, account=ACCOUNT_0, model_file_name="./models/armodel.pkl"):
-        super(ArAgent, self).__init__(account)
+    def __init__(self, account=ACCOUNT_0, model_file_name="./models/armodel.pkl", logging=True):
+        super(ArAgent, self).__init__(account, logging)
         self.predictions_count = 0
         self.model = ARResults.load(model_file_name)
+        self.log('ArAgent')
 
     def predict_for_tomorrow(self):
         # need to predict all starting from START, but only return last NUM_PREDICTIONS

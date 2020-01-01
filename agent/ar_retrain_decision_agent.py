@@ -22,12 +22,13 @@ class ArRetrainDecisionAgent(Agent):
     """
     MODEL_SIMILARITY_THRESHOLD = 70
 
-    def __init__(self, account=ACCOUNT_0):
-        super(ArRetrainDecisionAgent, self).__init__(account)
+    def __init__(self, account=ACCOUNT_0, logging=True):
+        super(ArRetrainDecisionAgent, self).__init__(account, logging)
         # None as we are not predicting for first day or day before
         self.models = [None, None]
         self.last_successful_model = None
         self.to_predict_for = len(self.aggregate_history) + NUM_PREDICTIONS
+        self.log('ArRetrainDecisionAgent')
 
     def predict_for_tomorrow(self):
         self.update_models()

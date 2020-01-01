@@ -20,10 +20,12 @@ class LstmAgent(Agent):
 
     NUM_HISTORIC_DATA = 144
 
-    def __init__(self, account=ACCOUNT_0, model_file_name="./models/LSTMunivariate.h5"):
-        super(LstmAgent, self).__init__(account)
+    def __init__(self, account=ACCOUNT_0, model_file_name="./models/LSTMunivariate.h5",
+                 logging=True):
+        super(LstmAgent, self).__init__(account, logging)
         self.predictions_count = 0
         self.model = load_model(model_file_name)
+        self.log('LstmAgent')
 
     def predict_for_tomorrow(self):
         model_input = np.array(self.aggregate_history[
