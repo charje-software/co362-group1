@@ -2,7 +2,7 @@ import pandas as pd
 from statsmodels.tsa.ar_model import AR
 
 from agent import Agent
-from prediction_market_adapter import ACCOUNT_0
+from prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS
 
 
 class ArRetrainAgent(Agent):
@@ -10,24 +10,21 @@ class ArRetrainAgent(Agent):
        It fits its model again after each day.
 
     Attributes:
-        model: a pretrained autoregression model used for predicting
-               future aggregate energy consumption.
-        history: past aggregate energy consumption (as a list)
+        model: an autoregression model trained each day on all available history
+               used for predicting future aggregate energy consumption.
     """
 
-    def __init__(self, account=ACCOUNT_0):
-        super(ArRetrainAgent, self).__init__(account)
-        self.history = list(pd.read_pickle('./data/agg_history.pkl').aggregate_consumption)
-        self.model = AR(self.history).fit()
+    def __init__(self, account=ACCOUNT_0, logging=True):
+        super(ArRetrainAgent, self).__init__(account, logging)
+        self.model = AR(self.aggregate_history).fit()
+        self.log('ArRetrainAgent')
 
-    def predict(self, n):
-        # need to predict all starting from START, but only return last n
-        train_amt = len(self.history)
+    def predict_for_tomorrow(self):
+        # need to predict all starting from train_amt, but only return last NUM_PREDICTIONS
+        # there is a 1 day offset between the period predicted for and the training data
+        train_amt = len(self.aggregate_history)
+        self.model = AR(self.aggregate_history).fit()
         predictions = self.model.predict(start=train_amt,
-                                         end=train_amt+(n-1),
-                                         dynamic=False)
+                                         end=train_amt+2*NUM_PREDICTIONS-1,
+                                         dynamic=False)[-NUM_PREDICTIONS:]
         return list(map(int, predictions))
-
-    def update_aggregate_data(self):
-        self.history += self.prediction_market.get_latest_aggregate_consumptions()
-        self.model = AR(self.history).fit()

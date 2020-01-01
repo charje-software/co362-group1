@@ -1,7 +1,7 @@
 from web3 import Web3
 
 # Needs to match address of contract migrated to ganache (set manually)
-PREDICTION_MARKET = '0xB43Bd853cCd5698C6bd9Cb6800e22Be031f0467D'
+PREDICTION_MARKET = '0x38DB01F74fEfF24ba01d4e8aF02aAf8E9Add9103'
 
 # Account to be used by oracle, for testing, migrations etc.
 ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
@@ -16,8 +16,9 @@ UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
 # how many predictions to make per bet
 NUM_PREDICTIONS = 48  # must be even
 
-# absolute error must be less than this threshold to rank in top tier
+# absolute error must be less than this threshold to rank in top/mid tier
 TOP_TIER_THRESHOLD = 75
+MID_TIER_THRESHOLD = 150
 
 # Local ganache
 RPC_URL = 'http://127.0.0.1:7545'
