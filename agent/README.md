@@ -6,17 +6,33 @@ Check that:
  - `ACCOUNTS` in `demo.py` matches accounts[1..9] in Ganache.
  - `PredictionMarketAdapter.PREDICTION_MARKET` is Prediction Market contract address. (note: run `truffle migrate` before hand)
 
+Make sure you're on college network or use VPN so that Oracle data is accessible
+and run
+```
+python demo.py
+```
+
+## Autonomous Agents and Oracle
+Run the Oracle (on college network) with suitable start, end and interval times.
+```
+python oracle.py '2020-01-02 14:48:00' '2020-01-28 00:00:00' '30min'
+```
+Run one or more of scripts in the `participants` directory each running an agent.
+These scripts take the same arguments as `oracle.py`.
+
 ## Contributing
 When modifying the code, run pylint:
 ```
-pycodestyle --show-source --show-pep8 --max-line-length=100 *.py
+pycodestyle --show-source --show-pep8 --max-line-length=100 *.py **/*.py
 ```
 
-To run tests:
+To run all tests:
 ```
-python test_agent_unittest.py
-python test_oracle_unittest.py
-python test_meter_unittest.py
+python -m unittest discover test
+```
+Run a test e.g.:
+```
+python -m unittest test.test_agent_unittest
 ```
 
 To compare model performance:

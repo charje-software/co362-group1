@@ -2,8 +2,8 @@ from statsmodels.tsa.ar_model import AR
 from sklearn.metrics import mean_absolute_error
 import pandas as pd
 
-from agent import Agent
-from prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS, TOP_TIER_THRESHOLD
+from agents.agent import Agent
+from agents.prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS, TOP_TIER_THRESHOLD
 
 
 class ArRetrainDecisionAgent(Agent):

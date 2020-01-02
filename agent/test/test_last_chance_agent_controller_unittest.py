@@ -1,13 +1,13 @@
 import unittest
 from unittest import TestCase
 
-from agent_controller import AgentController
-from agent import Agent
-from test_agent_controller_utils import *
+from agents.last_chance_agent_controller import LastChanceAgentController
+from agents.agent import Agent
+from test.test_agent_controller_utils import *
 
 
 class TestAgentController(TestCase):
-    controller = AgentController(Agent())
+    controller = LastChanceAgentController(Agent())
 
     def test_is_betting_period(self):
         self.assertTrue(only_once_during_first_half_day(self.controller.is_betting_period))

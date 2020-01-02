@@ -4,9 +4,9 @@ import math
 
 from tensorflow.keras.models import load_model
 
-from agent import Agent
-from meter import Meter
-from prediction_market_adapter import NUM_PREDICTIONS, ACCOUNT_0
+from agents.agent import Agent
+from agents.meter import Meter
+from agents.prediction_market_adapter import NUM_PREDICTIONS, ACCOUNT_0
 
 
 class LstmMultiAgent(Agent):

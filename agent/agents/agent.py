@@ -2,7 +2,7 @@ from colr import color
 import pandas as pd
 from sklearn.metrics import mean_absolute_error
 
-from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, ACCOUNT_0, \
+from agents.prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, ACCOUNT_0, \
                                       MID_TIER_THRESHOLD, TOP_TIER_THRESHOLD
 
 

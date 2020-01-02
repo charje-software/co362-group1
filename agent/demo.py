@@ -1,12 +1,12 @@
 import pandas as pd
 
-from ar_agent import ArAgent
-from ar_retrain_agent import ArRetrainAgent
-from ar_retrain_decision_agent import ArRetrainDecisionAgent
-from cheating_agent import CheatingAgent
-from lstm_agent import LstmAgent
-from lstm_multi_agent import LstmMultiAgent
-from oracle import Oracle
+from agents.ar_agent import ArAgent
+from agents.ar_retrain_agent import ArRetrainAgent
+from agents.ar_retrain_decision_agent import ArRetrainDecisionAgent
+from agents.cheating_agent import CheatingAgent
+from agents.lstm_agent import LstmAgent
+from agents.lstm_multi_agent import LstmMultiAgent
+from agents.oracle import Oracle
 
 START = pd.to_datetime('2014-01-28 00:00:00')
 END = pd.to_datetime('2014-02-14 23:30:00')

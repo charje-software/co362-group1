@@ -88,7 +88,7 @@ build_agent:
    - virtualenv venv
    - source venv/bin/activate
    # not building anything yet, just checking code style
-   - pycodestyle --show-source --show-pep8 --max-line-length=100 *.py
+   - pycodestyle --show-source --show-pep8 --max-line-length=100 **/*.py
   rules:
    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
      when: on_success
@@ -133,10 +133,7 @@ test_agent:
    - pip install virtualenv
    - virtualenv venv
    - source venv/bin/activate
-   - python test_agent_unittest.py
-   - python test_meter_unittest.py
-   - python test_oracle_unittest.py
-   - python calc_model_accuracy.py
+   - python -m unittest discover test
   artifacts:
     paths:
       - agent/metrics

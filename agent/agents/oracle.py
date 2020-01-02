@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 import sys
 
-from prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, ACCOUNT_0, \
+from agents.prediction_market_adapter import PredictionMarketAdapter, NUM_PREDICTIONS, ACCOUNT_0, \
                                       PERIOD_LENGTH
 
 

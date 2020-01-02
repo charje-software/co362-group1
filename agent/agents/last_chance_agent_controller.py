@@ -1,11 +1,11 @@
 from random import randint
 
-from agent_controller import AgentController
-from prediction_market_adapter import NUM_PREDICTIONS
+from agents.agent_controller import AgentController
+from agents.prediction_market_adapter import NUM_PREDICTIONS
 
 
 class LastChanceAgentController(AgentController):
-    """ Chooses last allowed periods for betting, ranking and collecting.
+    """Chooses last allowed periods for betting, ranking and collecting.
     """
     def is_betting_period(self, period):
         return period % NUM_PREDICTIONS == NUM_PREDICTIONS // 2 - 1

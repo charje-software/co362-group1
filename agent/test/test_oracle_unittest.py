@@ -1,8 +1,8 @@
 import unittest
 from unittest import TestCase, mock
 
-from oracle import Oracle
-from prediction_market_adapter import ACCOUNT_0
+from agents.oracle import Oracle
+from agents.prediction_market_adapter import ACCOUNT_0
 
 
 class TestOracle(TestCase):
@@ -17,7 +17,7 @@ class TestOracle(TestCase):
         }
 
     def test_query_live_data(self):
-        with mock.patch('oracle.requests.get', autospec=True) as mock_oracle_get:
+        with mock.patch('agents.oracle.requests.get', autospec=True) as mock_oracle_get:
             mock_oracle_get.return_value.json.return_value = TestOracle.JSON_TEST_DATA
 
             oracle = Oracle()
@@ -35,8 +35,10 @@ class TestOracle(TestCase):
         self.assertRaises(ValueError, oracle.query_live_data)
 
     def test_update_consumption(self):
-        with mock.patch('oracle.PredictionMarketAdapter', autospec=True) as mock_prediction_market,\
-              mock.patch('oracle.requests.get', autospec=True) as mock_oracle_get:
+        with mock.patch('agents.oracle.PredictionMarketAdapter', autospec=True) \
+                    as mock_prediction_market, \
+                    mock.patch('agents.oracle.requests.get', autospec=True) \
+                    as mock_oracle_get:
 
             mock_prediction_market = mock_prediction_market.return_value
             mock_oracle_get.return_value.json.return_value = TestOracle.JSON_TEST_DATA

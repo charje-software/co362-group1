@@ -1,11 +1,11 @@
 from random import randint
 
-from agent_controller import AgentController
-from prediction_market_adapter import NUM_PREDICTIONS
+from agents.agent_controller import AgentController
+from agents.prediction_market_adapter import NUM_PREDICTIONS
 
 
 class RandomAgentController(AgentController):
-    """ Chooses random periods during allowed ranges for betting, ranking and
+    """Chooses random periods during allowed ranges for betting, ranking and
     collecting.
 
     Attributes:

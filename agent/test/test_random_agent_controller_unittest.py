@@ -1,10 +1,10 @@
 import unittest
 from unittest import TestCase
 
-from random_agent_controller import RandomAgentController
-from agent import Agent
-from prediction_market_adapter import NUM_PREDICTIONS
-from test_agent_controller_utils import *
+from agents.random_agent_controller import RandomAgentController
+from agents.agent import Agent
+from agents.prediction_market_adapter import NUM_PREDICTIONS
+from test.test_agent_controller_utils import *
 
 
 class TestRandomAgentController(TestCase):

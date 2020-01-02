@@ -1,4 +1,4 @@
-from prediction_market_adapter import NUM_PREDICTIONS
+from agents.prediction_market_adapter import NUM_PREDICTIONS
 
 
 def only_once_during_first_half_day(func, period_offset=0):

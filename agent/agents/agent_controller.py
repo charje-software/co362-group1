@@ -1,4 +1,4 @@
-from prediction_market_adapter import PERIOD_LENGTH, NUM_PREDICTIONS
+from agents.prediction_market_adapter import PERIOD_LENGTH, NUM_PREDICTIONS
 
 
 class AgentController:
