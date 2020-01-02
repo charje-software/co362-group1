@@ -1,7 +1,8 @@
 from web3 import Web3
+import pandas as pd
 
 # Needs to match address of contract migrated to ganache (set manually)
-PREDICTION_MARKET = '0x38DB01F74fEfF24ba01d4e8aF02aAf8E9Add9103'
+PREDICTION_MARKET = '0x2354611EC41802CEED148Dbb27473843DF7cAcE0'
 
 # Account to be used by oracle, for testing, migrations etc.
 ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
@@ -15,6 +16,8 @@ UPDATE_CONSUMPTION = '0xa05d262b'  # updateConsumption(uint256)
 
 # how many predictions to make per bet
 NUM_PREDICTIONS = 48  # must be even
+# length of time intervals for which predictions are made
+PERIOD_LENGTH = pd.Timedelta('30min')
 
 # absolute error must be less than this threshold to rank in top/mid tier
 TOP_TIER_THRESHOLD = 75
