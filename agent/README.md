@@ -15,7 +15,7 @@ python demo.py
 ## Autonomous Agents and Oracle
 Run the Oracle (on college network) with suitable start, end and interval times.
 ```
-python oracle.py '2020-01-02 14:48:00' '2020-01-28 00:00:00' '30min'
+python -m agents.oracle '2020-02-02 14:48:00' '2020-02-28 00:00:00' '30min'
 ```
 Run one or more of scripts in the `participants` directory each running an agent.
 These scripts take the same arguments as `oracle.py`.
