@@ -149,20 +149,6 @@ test_agent:
     <<: *python_cache
     policy: pull
 
-deploy_contracts:
-  stage: deploy
-  script:
-   - cd prediction-market/
-   - ./node_modules/truffle/build/cli.bundled.js migrate --network master
-  only:
-   refs:
-   - master
-   changes:
-   - prediction-market/contracts/*
-  cache:
-    <<: *node_cache
-    policy: pull
-
 deploy_app:
   stage: deploy
   dependencies:
