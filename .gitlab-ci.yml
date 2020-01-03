@@ -134,6 +134,7 @@ test_agent:
    - virtualenv venv
    - source venv/bin/activate
    - python -m unittest discover test
+   - python calc_model_accuracy.py
   artifacts:
     paths:
       - agent/metrics
