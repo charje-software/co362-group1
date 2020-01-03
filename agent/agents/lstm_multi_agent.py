@@ -49,12 +49,13 @@ class LstmMultiAgent(Agent):
         # batch data into format that model requires: 3D array of (?, 144, 2)
         agg_history = np.array(agg_history)
         my_history = np.array(history)
+        agg_indices = range(0-LstmMultiAgent.NUM_HISTORIC_DATA, 0)
         # offset to make sure that you take an exact 3 days starting from start of day
         offset = self.num_history_added % NUM_PREDICTIONS
-        indices = range(0-LstmMultiAgent.NUM_HISTORIC_DATA-offset, 0-offset)
+        my_indices = range(0-LstmMultiAgent.NUM_HISTORIC_DATA-offset, 0-offset)
         tuple = []
         for j in range(len(agg_history[indices])):
-            tuple.append([agg_history[indices][j], history[indices][j]])
+            tuple.append([agg_history[indices][j], history[my_indices][j]])
         data = [tuple]
 
         predictions = []

@@ -26,6 +26,8 @@ class Oracle:
         self.prediction_market = PredictionMarketAdapter()
         self.logging = logging
         self.account = ACCOUNT_0
+        if self.logging:
+            print('Oracle  : oracle agent.')
 
     def update_consumption(self):
         updated_consumption, date_time = self.query_live_data()
@@ -51,8 +53,8 @@ class Oracle:
         or until dataset is exhausted.
 
         Args:
-            start_time: date and time for first data update (actual time -- not
-                        timestamp of data entry)
+            start_time: first data update occurs at start_time + time_delta
+                        (actual time -- not timestamp of data entry)
             end_time:   date and time for last data update (actual time -- not
                         timestamp of data entry)
             time_delta: how long to wait between data updates.
@@ -63,16 +65,15 @@ class Oracle:
         elif start_time < now:
             raise ValueError('Start time cannot be in the past!')
 
-        now = datetime.now()
         next_time = start_time + time_delta
         while now <= end_time:
+            now = datetime.now()
+            time.sleep((next_time - now).seconds)
+            next_time += time_delta
             try:
                 self.update_consumption()
             except ValueError:
                 break  # no more data to fetch
-            time.sleep((next_time - now).seconds)
-            next_time += time_delta
-            now = datetime.now()
 
 
 if __name__ == "__main__":

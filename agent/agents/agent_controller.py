@@ -1,3 +1,7 @@
+import time
+from datetime import datetime
+import pandas as pd
+
 from agents.prediction_market_adapter import PERIOD_LENGTH, NUM_PREDICTIONS
 
 
@@ -10,6 +14,8 @@ class AgentController:
     Attributes:
         agent:        the Agent to control.
     """
+    OFFSET = pd.Timedelta('5s')  # wait for oracle to act
+
     def __init__(self, agent):
         self.agent = agent
 
@@ -28,6 +34,9 @@ class AgentController:
             time.sleep((start_time - now).seconds)
         elif start_time < now:
             raise ValueError('Start time cannot be in the past!')
+
+        start_time += AgentController.OFFSET
+        end_time += AgentController.OFFSET
 
         now = datetime.now()
         next_time = start_time + time_delta

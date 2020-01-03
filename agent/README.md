@@ -1,5 +1,10 @@
 # Agent
 
+## Install requirements
+```
+python -m pip install -r requirements.txt
+```
+
 ## Running demo
 Check that:
  - `Oracle.ACCOUNT` is account[0] in Ganache

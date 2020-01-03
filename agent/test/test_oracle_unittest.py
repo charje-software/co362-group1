@@ -20,7 +20,7 @@ class TestOracle(TestCase):
         with mock.patch('agents.oracle.requests.get', autospec=True) as mock_oracle_get:
             mock_oracle_get.return_value.json.return_value = TestOracle.JSON_TEST_DATA
 
-            oracle = Oracle()
+            oracle = Oracle(logging=False)
 
             result1, _ = oracle.query_live_data()
             self.assertEqual(result1, '500')
@@ -31,7 +31,7 @@ class TestOracle(TestCase):
             self.assertEqual(mock_oracle_get.call_count, 2)
 
     def test_query_data_end_should_error(self):
-        oracle = Oracle(Oracle.DATA_SIZE + 1)
+        oracle = Oracle(Oracle.DATA_SIZE + 1, logging=False)
         self.assertRaises(ValueError, oracle.query_live_data)
 
     def test_update_consumption(self):
