@@ -43,7 +43,10 @@ class LstmMultiAgent(Agent):
 
         # offset to make sure that you take an exact 3 days starting from start of day
         offset = self.num_history_added % NUM_PREDICTIONS
-        history = np.array(self.my_history[-LstmMultiAgent.NUM_HISTORIC_DATA-offset:-offset])
+        if offset > 0:
+            history = np.array(self.my_history[-LstmMultiAgent.NUM_HISTORIC_DATA-offset:-offset])
+        else:
+            history = np.array(self.my_history[-LstmMultiAgent.NUM_HISTORIC_DATA:])
         history = (history-self.mean)/self.std_dev
 
         # batch data into format that model requires: 3D array of (?, 144, 2)

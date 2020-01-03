@@ -17,7 +17,24 @@ and run
 python demo.py
 ```
 
-## Autonomous Agents and Oracle
+## Real-time Demo
+Make sure that *ganache-cli* is running on *cloud-vm-41-214*. Otherwise, start it like this:
+```
+sudo docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest -h 0.0.0.0 -m 'goose eternal solar fence clean blur option shy debate runway other crater'
+```
+
+Migrate contracts:
+```
+truffle migrate --reset --network master
+```
+
+### All
+Start a new *screen* and run the following script with suitable start, end and interval times.
+```
+sh demo.sh '2020-01-03 10:48:00' '2020-02-28 00:00:00' '30min'
+```
+
+### Custom
 Run the Oracle (on college network) with suitable start, end and interval times.
 ```
 python -m agents.oracle '2020-02-02 14:48:00' '2020-02-28 00:00:00' '30min'
