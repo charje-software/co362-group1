@@ -16,12 +16,13 @@ class AgentBets extends Component {
     super(props);
     this.contracts = context.drizzle.contracts;
     this.methods = this.contracts.PredictionMarket.methods;
-    this.betPredictionsDataKey = this.methods["getBetPredictionsForAgent"].cacheCall({from: this.props.accounts[0]});
-    this.betAmountsDataKey = this.methods["getBetAmountsForAgent"].cacheCall({from: this.props.accounts[0]});
-    this.betWinningScalesDataKey = this.methods["getBetWinningScalesForAgent"].cacheCall({from: this.props.accounts[0]});
-    this.betTimestampsDataKey = this.methods["getBetTimestampsForAgent"].cacheCall({from: this.props.accounts[0]});
-    this.canClaimDataKey = this.methods["canClaim"].cacheCall(this.props.accounts[0]);
-    this.canRankDataKey = this.methods["canRank"].cacheCall(this.props.accounts[0]);
+    this.account = this.props.accounts[0];
+    this.betPredictionsDataKey = this.methods["getBetPredictionsForAgent"].cacheCall({from: this.account});
+    this.betAmountsDataKey = this.methods["getBetAmountsForAgent"].cacheCall({from: this.account});
+    this.betWinningScalesDataKey = this.methods["getBetWinningScalesForAgent"].cacheCall({from: this.account});
+    this.betTimestampsDataKey = this.methods["getBetTimestampsForAgent"].cacheCall({from: this.account});
+    this.canClaimDataKey = this.methods["canClaim"].cacheCall(this.account);
+    this.canRankDataKey = this.methods["canRank"].cacheCall(this.account);
   }
 
   hasFetchedData() {
@@ -68,20 +69,21 @@ class AgentBets extends Component {
         button = (
           <Tooltip title="Rank Bet">
             <Fab size="small" onClick={this.onClickRank} style={fabStyle}>
-              <RankingIcon style={{width: 20, height: 20}} component={this.svgGradient} />
+              <RankingIcon style={iconStyle} component={this.svgGradient} />
             </Fab>
           </Tooltip>
         )
-      }
-    } else if (this.canClaimDataKey in this.props.PredictionMarket.canClaim) {
-      if (this.props.PredictionMarket.canClaim[this.canClaimDataKey].value) {
-        button = (
-          <Tooltip title="Claim Winnings">
-            <Fab size="small" onClick={this.onClickRank} style={fabStyle}>
-              <ClaimingIcon style={{width: 20, height: 20}} component={this.svgGradient} />
-            </Fab>
-          </Tooltip>
-        )
+      } else if (this.canClaimDataKey in this.props.PredictionMarket.canClaim) {
+        console.log(this.props.PredictionMarket.canClaim[this.canClaimDataKey].value);
+        if (this.props.PredictionMarket.canClaim[this.canClaimDataKey].value) {
+          button = (
+            <Tooltip title="Claim Winnings">
+              <Fab size="small" onClick={this.onClickClaim} style={fabStyle}>
+                <ClaimingIcon style={iconStyle} component={this.svgGradient} />
+              </Fab>
+            </Tooltip>
+          )
+        }
       }
     }
     return (
@@ -184,6 +186,11 @@ const fabStyle = {
   height: 35,
   backgroundColor: 'white',
 };
+
+const iconStyle = {
+  width: 20,
+  height: 20,
+}
 
 AgentBets.contextTypes = {
   drizzle: PropTypes.object,
