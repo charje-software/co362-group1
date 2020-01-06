@@ -58,8 +58,8 @@ class RfAgent(Agent):
         model_input = model_input.drop(columns=['datetime'])
 
         # scale input according to training data standardization
-        means = {'day_of_year': 188.0585337, 'day_of_month': 15.90230575}
-        std_devs = {'day_of_year': 118.85431568, 'day_of_month': 8.74171958}
+        means = {'day_of_year': 188.0585337, 'day_of_month': 15.90230575, 'aggregate_consumption': 1162.57834632}
+        std_devs = {'day_of_year': 118.85431568, 'day_of_month': 8.74171958, 'aggregate_consumption': 422.36255133}
         for key in means.keys():
             model_input[key] = model_input[key].apply(lambda x: (x-means[key])/std_devs[key])
 
