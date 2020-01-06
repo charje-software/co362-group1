@@ -6,6 +6,7 @@ from agents.ar_retrain_decision_agent import ArRetrainDecisionAgent
 from agents.cheating_agent import CheatingAgent
 from agents.lstm_agent import LstmAgent
 from agents.lstm_multi_agent import LstmMultiAgent
+from agents.rf_agent import RfAgent
 from agents.oracle import Oracle
 
 START = pd.to_datetime('2014-01-28 00:00:00')
@@ -32,9 +33,10 @@ agent5 = LstmMultiAgent(
     model_file_name='./models/LSTMmultivariate.h5',
     household_name='MAC000002',
     normalise_values=household_2_normalise_values)
-agent6 = CheatingAgent(ACCOUNTS[5])
+agent6 = RfAgent(ACCOUNTS[5])
+agent7 = CheatingAgent(ACCOUNTS[6])
 # important that cheating agent is last / near end
-agents = [agent1, agent2, agent3, agent4, agent5, agent6]
+agents = [agent1, agent2, agent3, agent4, agent5, agent6, agent7]
 oracle = Oracle()
 
 

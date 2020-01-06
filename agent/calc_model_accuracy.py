@@ -10,6 +10,7 @@ from agents.ar_retrain_agent import ArRetrainAgent
 from agents.ar_retrain_decision_agent import ArRetrainDecisionAgent
 from agents.lstm_agent import LstmAgent
 from agents.lstm_multi_agent import LstmMultiAgent
+from agents.rf_agent import RfAgent
 from agents.prediction_market_adapter import NUM_PREDICTIONS
 
 
@@ -92,3 +93,4 @@ if __name__ == "__main__":
         household_name='MAC000007',
         normalise_values=household_7_normalise_values, logging=False),
         'lstm_multi_model7')
+    metrics_calculator.calc_metrics(RfAgent(account='dummy', logging=False), 'random_forest')
