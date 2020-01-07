@@ -17,6 +17,8 @@ stages:
 
 node_deps:
   stage: install
+  tags:
+   - node-job
   script:
    - cd prediction-market/
    - npm install truffle
@@ -57,6 +59,8 @@ python_deps:
 
 build_prediction_market:
   stage: build
+  tags:
+   - node-job
   script:
    - cd prediction-market/
    - ./node_modules/truffle/build/cli.bundled.js compile
@@ -102,6 +106,8 @@ build_agent:
 
 test_prediction_market:
   stage: test
+  tags:
+   - node-job
   services:
    - trufflesuite/ganache-cli
   dependencies:
