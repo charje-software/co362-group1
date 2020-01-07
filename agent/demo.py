@@ -10,8 +10,7 @@ from agents.rf_agent import RfAgent
 from agents.oracle import Oracle
 
 START = pd.to_datetime('2014-01-28 00:00:00')
-END = pd.to_datetime('2014-02-14 23:30:00')
-# END = pd.to_datetime('2014-02-27 23:30:00')
+END = pd.to_datetime('2014-02-27 23:30:00')
 
 ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
             '0x4B516E6c8c3a5Ea97Ff7377d81Ea2238C46C5882',
@@ -73,8 +72,12 @@ if __name__ == "__main__":
             print('-' * 59)
 
         if is_midnight(date_time):
-            for agent in agents:
-                agent.place_bet()
+            if date_time < END - pd.Timedelta('2days'):
+                for agent in agents:
+                    agent.place_bet()
+            else:
+                for agent in agents:
+                    agent.prediction_history.append(None)
 
             for agent in agents:
                 agent.rank_bet()
