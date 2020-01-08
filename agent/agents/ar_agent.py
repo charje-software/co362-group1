@@ -16,8 +16,8 @@ class ArAgent(Agent):
 
     START = 38237  # first time point to predict for relative to the first entry used for training
 
-    def __init__(self, account=ACCOUNT_0, model_file_name="./models/armodel.pkl", logging=True):
-        super(ArAgent, self).__init__(account, logging)
+    def __init__(self, account=ACCOUNT_0, model_file_name="./models/armodel.pkl", logging=True, color=None):
+        super(ArAgent, self).__init__(account, logging, color)
         self.predictions_count = 0
         self.model = ARResults.load(model_file_name)
         self.log('ArAgent')

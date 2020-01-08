@@ -1,4 +1,5 @@
 import requests
+from colr import color
 import time
 from datetime import datetime
 import pandas as pd
@@ -27,14 +28,14 @@ class Oracle:
         self.logging = logging
         self.account = ACCOUNT_0
         if self.logging:
-            print('Oracle  : oracle agent.')
+            print(color('Oracle  : Aggregate consumption data oracle.', fore='595959'))
 
     def update_consumption(self):
         updated_consumption, date_time = self.query_live_data()
         self.prediction_market.update_consumption(self.account, int(updated_consumption))
         if self.logging:
-            print('Oracle  : consumption for period ending ({0}): {1} kW.'
-                  .format(date_time, updated_consumption))
+            print(color('Oracle  : consumption for period ending ({0}): {1} kW.'
+                  .format(date_time, updated_consumption), fore='595959'))
 
     def query_live_data(self):
         if self.time_index > Oracle.DATA_SIZE:

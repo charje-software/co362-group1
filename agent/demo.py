@@ -1,5 +1,6 @@
 import pandas as pd
 from pynput import keyboard
+from colr import color
 
 from agents.ar_agent import ArAgent
 from agents.ar_retrain_agent import ArRetrainAgent
@@ -23,18 +24,18 @@ ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
             '0x3FFA1EA78d44488c43DE84B6D03C3b6C0DC7248E',
             '0x0A058293Feb18aedbca8c2169947381d2e71F424']
 
-agent1 = ArAgent(ACCOUNTS[0])
-agent2 = ArRetrainAgent(ACCOUNTS[1])
-agent3 = ArRetrainDecisionAgent(ACCOUNTS[2])
-agent4 = LstmAgent(ACCOUNTS[3])
+agent1 = ArAgent(ACCOUNTS[0], color='A63D40')
+agent2 = ArRetrainAgent(ACCOUNTS[1], color='9e4acf')
+agent3 = ArRetrainDecisionAgent(ACCOUNTS[2], color='3959bf')
+agent4 = LstmAgent(ACCOUNTS[3], color='6494AA')
 household_2_normalise_values = [1.16123236e+03, 4.24041018e+02, 2.47572234e-01, 2.41049693e-01]
 agent5 = LstmMultiAgent(
     account=ACCOUNTS[4],
     model_file_name='./models/LSTMmultivariate.h5',
     household_name='MAC000002',
-    normalise_values=household_2_normalise_values)
-agent6 = RfAgent(ACCOUNTS[5])
-agent7 = CheatingAgent(ACCOUNTS[6])
+    normalise_values=household_2_normalise_values, color='E9B872')
+agent6 = RfAgent(ACCOUNTS[5], color='90A959')
+agent7 = CheatingAgent(ACCOUNTS[6], color='151515')
 # important that cheating agent is last / near end
 agents = [agent1, agent2, agent3, agent4, agent5, agent6, agent7]
 oracle = Oracle()
@@ -57,8 +58,8 @@ def is_new_period(date_time):
 
 
 def get_input_and_update(forever, day, half_day):
-    key = input('Continue until end [e], the next day [d], half_day' +
-                ' [h], period [otherwise]? ... ')
+    key = input(color('Continue until end [e], the next day [d], half_day' +
+                ' [h], period [otherwise]? ... ', fore='595959'))
     if key == 'e':
         forever = True
     elif key == 'd':
@@ -87,9 +88,9 @@ if __name__ == "__main__":
 
         if (is_midnight(date_time) or is_noon(date_time)):
             half_day = False
-            print('-' * 59)
-            print(' ' * 20 + str(date_time))
-            print('-' * 59)
+            print(color('-' * 59, fore='595959'))
+            print(color(' ' * 20 + str(date_time), fore='595959'))
+            print(color('-' * 59, fore='595959'))
 
         if not forever and not day and not half_day:
             forever, day, half_day = get_input_and_update(forever, day, half_day)

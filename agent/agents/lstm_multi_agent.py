@@ -23,8 +23,8 @@ class LstmMultiAgent(Agent):
     NUM_HISTORIC_DATA = 144
 
     def __init__(self, model_file_name, household_name, normalise_values,
-                 account=ACCOUNT_0, logging=True):
-        super(LstmMultiAgent, self).__init__(account, logging)
+                 account=ACCOUNT_0, logging=True, color=None):
+        super(LstmMultiAgent, self).__init__(account, logging, color)
         self.predictions_count = 0
         self.model = load_model(model_file_name)
         data_file_name = './data/household_' + household_name + '_history.pkl'

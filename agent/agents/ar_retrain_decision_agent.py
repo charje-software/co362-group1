@@ -22,8 +22,8 @@ class ArRetrainDecisionAgent(Agent):
     """
     MODEL_SIMILARITY_THRESHOLD = 70
 
-    def __init__(self, account=ACCOUNT_0, logging=True):
-        super(ArRetrainDecisionAgent, self).__init__(account, logging)
+    def __init__(self, account=ACCOUNT_0, logging=True, color=None):
+        super(ArRetrainDecisionAgent, self).__init__(account, logging, color)
         # None as we are not predicting for first day or day before
         self.models = [None, None]
         self.last_successful_model = None
