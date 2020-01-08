@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.metrics import mean_absolute_error
 
-from agent import Agent
-from prediction_market_adapter import NUM_PREDICTIONS, TOP_TIER_THRESHOLD, ACCOUNT_0
+from agents.agent import Agent
+from agents.prediction_market_adapter import NUM_PREDICTIONS, TOP_TIER_THRESHOLD, ACCOUNT_0
 
 
 class CheatingAgent(Agent):

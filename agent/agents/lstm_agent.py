@@ -4,8 +4,8 @@ import math
 
 from tensorflow.keras.models import load_model
 
-from agent import Agent
-from prediction_market_adapter import NUM_PREDICTIONS, ACCOUNT_0
+from agents.agent import Agent
+from agents.prediction_market_adapter import NUM_PREDICTIONS, ACCOUNT_0
 
 
 class LstmAgent(Agent):
@@ -28,16 +28,13 @@ class LstmAgent(Agent):
         self.log('LstmAgent')
 
     def predict_for_tomorrow(self):
-        model_input = np.array(self.aggregate_history[
-                    -(NUM_PREDICTIONS+LstmAgent.NUM_HISTORIC_DATA):-NUM_PREDICTIONS])
+        model_input = np.array(self.aggregate_history[-LstmAgent.NUM_HISTORIC_DATA:])
         mean = 959.1326234         # calculated mean from training data
         std_dev = 480.45316223     # calculated std_dev from training data
         model_input = (model_input-mean)/std_dev  # normalise input data
 
         # batch data into format that model requires: 3D array of (?, 144, 1)
-        model_input = np.array(model_input)
-        indices = range(0-LstmAgent.NUM_HISTORIC_DATA, 0)
-        data = [[[x] for x in model_input[indices]]]
+        data = [[[x] for x in model_input]]
 
         predictions = []
         predictions_ = self.model.predict(data)

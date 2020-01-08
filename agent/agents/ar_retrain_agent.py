@@ -1,8 +1,8 @@
 import pandas as pd
 from statsmodels.tsa.ar_model import AR
 
-from agent import Agent
-from prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS
+from agents.agent import Agent
+from agents.prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS
 
 
 class ArRetrainAgent(Agent):

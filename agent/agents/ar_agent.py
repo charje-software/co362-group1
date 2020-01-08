@@ -1,7 +1,7 @@
 from statsmodels.tsa.ar_model import ARResults
 
-from agent import Agent
-from prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS
+from agents.agent import Agent
+from agents.prediction_market_adapter import ACCOUNT_0, NUM_PREDICTIONS
 
 
 class ArAgent(Agent):

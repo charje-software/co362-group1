@@ -13,7 +13,7 @@ module.exports = {
     },
     // used by CI/CD pipeline on master branch when deploying
     master: {
-      host: "172.17.0.2", // ip of docker container
+      host: "146.169.41.214", // ip of docker container
       port: 8545,
       network_id: "*"
     },

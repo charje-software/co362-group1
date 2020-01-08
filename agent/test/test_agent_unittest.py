@@ -1,14 +1,15 @@
 import unittest
 from unittest import TestCase, mock
 
-from prediction_market_adapter import NUM_PREDICTIONS
-from agent import Agent
+from agents.prediction_market_adapter import NUM_PREDICTIONS
+from agents.agent import Agent
 
 
 class TestAgent(TestCase):
 
     def test_place_bet(self):
-        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+        with mock.patch('agents.agent.PredictionMarketAdapter', autospec=True) \
+                    as MockPredictionMarket:
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)
@@ -26,7 +27,8 @@ class TestAgent(TestCase):
                                                                 predictions)
 
     def test_rank_bet(self):
-        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+        with mock.patch('agents.agent.PredictionMarketAdapter', autospec=True) \
+                    as MockPredictionMarket:
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)
@@ -38,7 +40,8 @@ class TestAgent(TestCase):
             mock_prediction_market.rank.assert_called_once_with(account)
 
     def test_collect_reward(self):
-        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+        with mock.patch('agents.agent.PredictionMarketAdapter', autospec=True) \
+                    as MockPredictionMarket:
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)
@@ -51,7 +54,8 @@ class TestAgent(TestCase):
             mock_prediction_market.transfer_reward.assert_called_once_with(account)
 
     def test_no_rank_if_no_bet(self):
-        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+        with mock.patch('agents.agent.PredictionMarketAdapter', autospec=True) \
+                    as MockPredictionMarket:
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)
@@ -62,7 +66,8 @@ class TestAgent(TestCase):
             mock_prediction_market.rank.assert_not_called()
 
     def test_no_rank_if_lost(self):
-        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+        with mock.patch('agents.agent.PredictionMarketAdapter', autospec=True) \
+                    as MockPredictionMarket:
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)
@@ -75,7 +80,8 @@ class TestAgent(TestCase):
             mock_prediction_market.rank.assert_not_called()
 
     def test_no_transfer_if_no_bet(self):
-        with mock.patch('agent.PredictionMarketAdapter', autospec=True) as MockPredictionMarket:
+        with mock.patch('agents.agent.PredictionMarketAdapter', autospec=True) \
+                    as MockPredictionMarket:
             mock_prediction_market = MockPredictionMarket.return_value
             account = '42'
             agent = Agent(account, logging=False)

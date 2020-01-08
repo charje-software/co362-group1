@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
 
-from meter import Meter
+from agents.meter import Meter
 
 
 class TestMeter(TestCase):

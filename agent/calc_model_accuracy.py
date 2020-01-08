@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 
-from agent import Agent
-from ar_agent import ArAgent
-from ar_retrain_agent import ArRetrainAgent
-from ar_retrain_decision_agent import ArRetrainDecisionAgent
-from lstm_agent import LstmAgent
-from lstm_multi_agent import LstmMultiAgent
-from prediction_market_adapter import NUM_PREDICTIONS
+from agents.agent import Agent
+from agents.ar_agent import ArAgent
+from agents.ar_retrain_agent import ArRetrainAgent
+from agents.ar_retrain_decision_agent import ArRetrainDecisionAgent
+from agents.lstm_agent import LstmAgent
+from agents.lstm_multi_agent import LstmMultiAgent
+from agents.prediction_market_adapter import NUM_PREDICTIONS
 
 
 class MetricsCalculator:
@@ -22,7 +22,7 @@ class MetricsCalculator:
     def calc_metrics(self, agent, model_name):
         predictions = []
         skipped = False
-        with mock.patch('agent.PredictionMarketAdapter.get_latest_aggregate_consumptions') \
+        with mock.patch('agents.agent.PredictionMarketAdapter.get_latest_aggregate_consumptions') \
                 as mock_get_latest_aggregate_consumptions:
             for i in range(len(self.actual) // 48):
                 # get predictions for 48 values at a time from agent
