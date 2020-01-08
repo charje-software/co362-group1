@@ -14,8 +14,8 @@ class ArRetrainAgent(Agent):
                used for predicting future aggregate energy consumption.
     """
 
-    def __init__(self, account=ACCOUNT_0, logging=True):
-        super(ArRetrainAgent, self).__init__(account, logging)
+    def __init__(self, account=ACCOUNT_0, logging=True, color=None):
+        super(ArRetrainAgent, self).__init__(account, logging, color)
         self.model = AR(self.aggregate_history).fit()
         self.log('ArRetrainAgent')
 

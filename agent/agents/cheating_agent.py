@@ -10,8 +10,8 @@ class CheatingAgent(Agent):
        and doesn't have its own model.
     """
 
-    def __init__(self, account=ACCOUNT_0, logging=True):
-        super(CheatingAgent, self).__init__(account, logging)
+    def __init__(self, account=ACCOUNT_0, logging=True, color=None):
+        super(CheatingAgent, self).__init__(account, logging, color)
         self.log('CheatingAgent')
 
     def predict_for_tomorrow(self):

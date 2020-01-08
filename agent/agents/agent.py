@@ -36,22 +36,24 @@ class Agent:
                             PredictionMarket smart contract.
         prediction_history: List containing past predictions (most recent last).
         aggregate_history:  List of aggregate consumption data (most recent last).
+        color:              For logging.
     """
 
     DEFAULT_BETTING_AMOUNT = 1
     DEFAULT_PREDICTION = 700
 
-    def __init__(self, account=ACCOUNT_0, logging=True):
+    def __init__(self, account=ACCOUNT_0, logging=True, color=None):
         self.account = account
         self.logging = logging
         self.prediction_market = PredictionMarketAdapter()
         self.prediction_history = [None, None]  # No predictions yesterday or the day before
         self.aggregate_history = list(pd.read_pickle('./data/agg_history.pkl')
                                       .aggregate_consumption)
+        self.color = self.account[2:8] if color is None else color
 
     def log(self, msg):
         if self.logging:
-            print(color(self.account[:8], fore=self.account[2:8]) + ": " + msg)
+            print(color(self.account[:8] + ": " + msg, fore=self.color))
 
     def place_bet(self):
         """
