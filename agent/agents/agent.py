@@ -49,7 +49,7 @@ class Agent:
         self.prediction_history = [None, None]  # No predictions yesterday or the day before
         self.aggregate_history = list(pd.read_pickle('./data/agg_history.pkl')
                                       .aggregate_consumption)
-        self.color = self.account[2:8] if color == None else color
+        self.color = self.account[2:8] if color is None else color
 
     def log(self, msg):
         if self.logging:
