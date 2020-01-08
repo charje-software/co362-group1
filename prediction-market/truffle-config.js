@@ -11,10 +11,17 @@ module.exports = {
       port: 7545,
       network_id: "*"
     },
-    // used by CI/CD pipeline on master branch when deploying
-    master: {
-      host: "146.169.41.214", // ip of docker container
+    // use for demos on college network
+    internal_demo: {
+      host: "146.169.41.214", // ip of VM running ganache-cli
       port: 8545,
+      network_id: "*"
+    },
+    // use for public demo
+    public_demo: {
+      // runs ganache-cli but may restart when idle and lose contract state
+      host: "charje-ganache-test.herokuapp.com", 
+      port: 80,
       network_id: "*"
     },
     // used by CI/CD pipeline during testing stage
