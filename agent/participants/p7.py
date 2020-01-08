@@ -1,12 +1,12 @@
 import pandas as pd
 import sys
 
-from agents.rf_agent import RfAgent
-from agents.random_agent_controller import RandomController
+from agents.cheating_agent import CheatingAgent
+from agents.last_chance_agent_controller import LastChanceAgentController
 
 if __name__ == "__main__":
-    controller = RandomAgentController(RfAgent(
-            '0x3FFA1EA78d44488c43DE84B6D03C3b6C0DC7248E'))
+    controller = LastChanceAgentController(CheatingAgent(
+            '0x0A058293Feb18aedbca8c2169947381d2e71F424'))
     if len(sys.argv) == 3:
         controller.run(start_time=pd.to_datetime(sys.argv[1]),
                        end_time=pd.to_datetime(sys.argv[2]))
