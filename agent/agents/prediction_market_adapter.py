@@ -27,6 +27,8 @@ MID_TIER_THRESHOLD = 150
 RPC_URL = 'http://127.0.0.1:7545'
 # VM ganache
 # RPC_URL = 'http://146.169.41.214:8545'
+# heroku ganache cli
+# RPC_URL = 'http://charje-ganache-test.herokuapp.com:80'
 
 # Conversion rate between ether and wei
 ETH_TO_WEI = 10 ** 18

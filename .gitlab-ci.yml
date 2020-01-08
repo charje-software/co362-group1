@@ -156,6 +156,32 @@ test_agent:
     <<: *python_cache
     policy: pull
 
+deploy_contracts_for_internal_demo:
+  stage: deploy
+  script:
+   - cd prediction-market/
+   - ./node_modules/truffle/build/cli.bundled.js migrate  --reset --network internal_demo
+  only:
+   refs:
+   - master
+  when: manual
+  cache:
+    <<: *node_cache
+    policy: pull
+    
+deploy_contracts_for_public_demo:
+  stage: deploy
+  script:
+   - cd prediction-market/
+   - ./node_modules/truffle/build/cli.bundled.js migrate --reset --network public_demo
+  only:
+   refs:
+   - master
+  when: manual
+  cache:
+    <<: *node_cache
+    policy: pull
+
 deploy_app:
   stage: deploy
   dependencies:
