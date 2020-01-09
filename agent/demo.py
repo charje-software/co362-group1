@@ -1,6 +1,6 @@
 import pandas as pd
-from pynput import keyboard
 from colr import color
+import sys
 
 from agents.ar_agent import ArAgent
 from agents.ar_retrain_agent import ArRetrainAgent
@@ -24,18 +24,18 @@ ACCOUNTS = ['0xEA43d7cE5224683B1D83D19327699756504fB489',
             '0x3FFA1EA78d44488c43DE84B6D03C3b6C0DC7248E',
             '0x0A058293Feb18aedbca8c2169947381d2e71F424']
 
-agent1 = ArAgent(ACCOUNTS[0], color='A63D40')
-agent2 = ArRetrainAgent(ACCOUNTS[1], color='9e4acf')
-agent3 = ArRetrainDecisionAgent(ACCOUNTS[2], color='3959bf')
-agent4 = LstmAgent(ACCOUNTS[3], color='6494AA')
+agent1 = ArAgent(ACCOUNTS[0], color='A63D40', name='Chris  ')
+agent2 = ArRetrainAgent(ACCOUNTS[1], color='9e4acf', name='Hannah ')
+agent3 = ArRetrainDecisionAgent(ACCOUNTS[2], color='3959bf', name='Ashly  ')
+agent4 = LstmAgent(ACCOUNTS[3], color='6494AA', name='Ram    ')
 household_2_normalise_values = [1.16123236e+03, 4.24041018e+02, 2.47572234e-01, 2.41049693e-01]
 agent5 = LstmMultiAgent(
     account=ACCOUNTS[4],
     model_file_name='./models/LSTMmultivariate.h5',
     household_name='MAC000002',
-    normalise_values=household_2_normalise_values, color='E9B872')
-agent6 = RfAgent(ACCOUNTS[5], color='90A959')
-agent7 = CheatingAgent(ACCOUNTS[6], color='151515')
+    normalise_values=household_2_normalise_values, color='E9B872', name='Jasmine')
+agent6 = RfAgent(ACCOUNTS[5], color='90A959', name='Esther ')
+agent7 = CheatingAgent(ACCOUNTS[6], color='151515', name='Cheater')
 # important that cheating agent is last / near end
 agents = [agent1, agent2, agent3, agent4, agent5, agent6, agent7]
 oracle = Oracle()
@@ -70,6 +70,11 @@ def get_input_and_update(forever, day, half_day):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 2:
+        fast_forward = pd.to_datetime(sys.argv[1])
+    else:
+        fast_forward = START
+
     # flags set by keyboard input
     forever = False
     day = False
@@ -92,7 +97,7 @@ if __name__ == "__main__":
             print(color(' ' * 20 + str(date_time), fore='595959'))
             print(color('-' * 59, fore='595959'))
 
-        if not forever and not day and not half_day:
+        if not forever and not day and not half_day and date_time >= fast_forward:
             forever, day, half_day = get_input_and_update(forever, day, half_day)
 
         if is_midnight(date_time):
@@ -103,6 +108,7 @@ if __name__ == "__main__":
                 for agent in agents:
                     agent.prediction_history.append(None)
 
+        if is_midnight(date_time - pd.Timedelta('30min')):
             for agent in agents:
                 agent.rank_bet()
 

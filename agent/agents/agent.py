@@ -36,24 +36,24 @@ class Agent:
                             PredictionMarket smart contract.
         prediction_history: List containing past predictions (most recent last).
         aggregate_history:  List of aggregate consumption data (most recent last).
-        color:              For logging.
     """
 
     DEFAULT_BETTING_AMOUNT = 1
     DEFAULT_PREDICTION = 700
 
-    def __init__(self, account=ACCOUNT_0, logging=True, color=None):
+    def __init__(self, account=ACCOUNT_0, logging=True, **kwargs):
         self.account = account
         self.logging = logging
         self.prediction_market = PredictionMarketAdapter()
         self.prediction_history = [None, None]  # No predictions yesterday or the day before
         self.aggregate_history = list(pd.read_pickle('./data/agg_history.pkl')
                                       .aggregate_consumption)
-        self.color = self.account[2:8] if color is None else color
+        self.color = self.account[2:8] if kwargs.get('color') is None else kwargs.get('color')
+        self.name = self.account[:8] if kwargs.get('name') is None else kwargs.get('name')
 
     def log(self, msg):
         if self.logging:
-            print(color(self.account[:8] + ": " + msg, fore=self.color))
+            print(color(self.name + ": " + msg, fore=self.color))
 
     def place_bet(self):
         """
@@ -85,7 +85,7 @@ class Agent:
                          .format(mae, tier))
                 self.prediction_market.rank(self.account)
             else:
-                self.log('No need to ask for ranking. Expecting to lose (MAE = {0:.2f}).'
+                self.log('No need to ask for ranking.   Expecting to lose  (MAE = {0:.2f}).'
                          .format(mae))
 
     def collect_reward(self):

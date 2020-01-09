@@ -20,8 +20,8 @@ class RfAgent(Agent):
     NUM_HISTORIC_DATA = 336
 
     def __init__(self, account=ACCOUNT_0, model_file_name="./models/rf.mdl",
-                 logging=True, color=None):
-        super(RfAgent, self).__init__(account, logging, color)
+                 logging=True, **kwargs):
+        super(RfAgent, self).__init__(account, logging, **kwargs)
         self.predictions_count = 0
         self.model = pickle.load(open(model_file_name, 'rb'))
         self.datetime = pd.to_datetime('2014-01-28 00:00:00')

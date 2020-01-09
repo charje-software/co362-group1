@@ -2,7 +2,7 @@ from web3 import Web3
 import pandas as pd
 
 # Needs to match address of contract migrated to ganache (set manually)
-PREDICTION_MARKET = '0x53096F223aBDbA15F4F8A2721F0f4FBA38103E09'
+PREDICTION_MARKET = '0x661ac2fa8b9060c4DB97Cb9468cd899b24f8f70d'
 
 # Account to be used by oracle, for testing, migrations etc.
 ACCOUNT_0 = '0xd8CA13a2b3FB03873Ce14d2D04921a7D8552c28F'
