@@ -6,7 +6,7 @@ python -m pip install -r requirements.txt
 ```
 
 Because the Random Forest model file is too large for Github (> 100MB), see
-[`agent/models/README.md`] to download the Random Forest model. 
+[`/agent/models/README.md`](models/README.md) to download the Random Forest model. 
 
 ## Step-through demo
 Make a workspace in Ganache with the following seed phrase to get reproducible account addresses:
