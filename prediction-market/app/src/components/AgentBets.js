@@ -145,7 +145,11 @@ class AgentBets extends Component {
     const betAmounts = pm.getBetAmountsForAgent[this.betAmountsDataKey].value;
     const betWinningScales = pm.getBetWinningScalesForAgent[this.betWinningScalesDataKey].value;
     const betTimestamps = pm.getBetTimestampsForAgent[this.betTimestampsDataKey].value;
-    const rowData = this.processRowData(betPredictions, betAmounts, betWinningScales, betTimestamps);
+    var rowData = []
+    if (betTimestamps !== null) {
+      rowData = this.processRowData(betPredictions, betAmounts, betWinningScales, betTimestamps);
+    }
+    // const rowData = this.processRowData(betPredictions, betAmounts, betWinningScales, betTimestamps);
 
     if (rowData.length === 0) {
       return (
