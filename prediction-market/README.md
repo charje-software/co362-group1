@@ -10,6 +10,8 @@ npm install
 Install [Ganache](https://www.trufflesuite.com/ganache) and create a workspace with `truffle-config.js`
 
 ## Compile, Migrate, Test
+Make sure to have Ganache running. The default network that truffle migrates to is [`development`](truffle-config.js) which details the default port and IP address (localhost) Ganache runs on.
+
 To compile, migrate and test:
 
 ```
@@ -19,6 +21,8 @@ truffle migrate
 
 truffle test
 ```
+
+Note that the default network that truffle migrates to is `development`.
 
 ## Interacting with the contract
 
@@ -31,3 +35,8 @@ window.eth.sendTransaction({'to': 'contract_address', 'from': 'account_address',
 ```
 
 Get the function hash by going to https://emn178.github.io/online-tools/keccak_256.html and hash the function definition (e.g. functionName(uint)). Get the first 8 digits and pad the rest of the 32 bits with 0s.
+
+### Prediction Market Adapter
+
+Alternatively, we have written a Python prediction market adapter for our autonomous Python agents to
+interact with the smart contract. See [`agent/agents/prediction_market_adapter.py`](../agent/agents/prediction_market_adapter.py)

@@ -1,6 +1,29 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Decentralised App (DApp)
+This DApp was made with React and Drizzle.
 
-## Available Scripts
+## Running the app
+Get the [Metamask](https://metamask.io/) browser extension.
+
+The following instructions are to interact with the prediction market deployed
+on a local Ganache Ethereum network. To deploy the prediction market, see
+[`prediction-market/README.md`](../README.md)
+
+Create a Metamask account with the following seed phrase:
+```
+goose eternal solar fence clean blur option shy debate runway other crater
+```
+note: or any seed phrase that matches the seed phrase that is given on Ganache.
+
+Run the app with
+```
+npm run start
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+## Some React stuff
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 In the project directory, you can run:
 
