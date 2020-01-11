@@ -1,3 +1,4 @@
 /app/src/contracts/
 /node_modules
 /build
+secrets.json

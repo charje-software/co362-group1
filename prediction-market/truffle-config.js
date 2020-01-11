@@ -1,4 +1,8 @@
 const path = require("path");
+var HDWalletProvider = require("truffle-hdwallet-provider");
+const secrets = require("./secrets.json");
+const mnemonic = secrets.Mnemonic;
+const ropstenApiKey = secrets.InfuraApiKey;
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
@@ -29,6 +33,13 @@ module.exports = {
       host: "trufflesuite-ganache-cli",
       port: 8545,
       network_id: "*"
-    }
+    },
+    // used to deploy to public Ropsten test network
+    ropsten: {
+      provider: function() {
+        return new HDWalletProvider(mnemonic, ropstenApiKey)
+      },
+      network_id: 3
+    },
   }
 };

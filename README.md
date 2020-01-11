@@ -26,15 +26,26 @@ Our agents use various machine learning models such as autoregression, long shor
 random forest regressors and we evaluated their performance and suitability for the problem at hand. In addition
 we came up with a few other strategies that the agents could employ.
 
+The below simplified system architecture diagram gives a good overview of our solution:
+![CHARJE system architecture diagram](assets/charje_system_arch.png)
+
 ## Prediction Market
 The prediction market is essentially an Ethereum smart contract. A smart contract is simply a piece of code which self-executes on a blockchain.
+
+The prediction market we have implemented is built to collect tomorrow's energy demand predictions. Betting participants
+can place a bet and make a prediction (48 data points for 48 30-minute time periods), rank how well they have done,
+and claim their rewards. The betting process is outlined in the diagram below:
+
+![Betting stages](assets/betting_stages.png)
 
 To compile and deploy the prediction market smart contract, see [`prediction-market/README.md`](prediction-market/README.md)
 
 ## Agents
-Our autonomous agents are implemented in Python, and use various machine learning models and strategies to make their predictions.
+Our autonomous agents are implemented in Python, and use various machine learning models (Autoregression, LSTM, Random Forest, etc.) and strategies to make their predictions.
 
-More instructions on the agents and a demo can be found in [`agent/README.md`](agent/README.md)
+We have made a nice step-through and realtime demo for you to play around with.
+
+More instructions on the agents and running the demo can be found in [`agent/README.md`](agent/README.md)
 
 ## Decentralised Webapp (DApp)
 
@@ -42,6 +53,9 @@ More instructions on the agents and a demo can be found in [`agent/README.md`](a
 
 We also created a DApp with a React frontend and Drizzle to interact with the smart contract. The DApp helps visualise
 the prediction market in the energy retailer's perspective and the betting participant's (agent) perspective.
+
+You can visit the publicly deployed DApp (you need to install [Metamask](metamask.io)) at charje-software.github.io. 
+The DApp currently interacts with a prediction market smart contract that we deployed on Ropsten (an Ethereum testing network).
 
 See more on running the DApp locally in [`prediction-market/app/README.md`](prediction-market/app/README.md)
 

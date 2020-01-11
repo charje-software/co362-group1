@@ -9,6 +9,14 @@ npm install
 
 Install [Ganache](https://www.trufflesuite.com/ganache) and create a workspace with `truffle-config.js`
 
+Add a file called `secrets.json` with the following contents (only required if you want to deploy to Ropsten):
+```
+{
+    "InfuraApiKey": "YOUR_API_KEY",
+    "Mnemonic": "YOUR_SEED_PHRASE"
+}
+```
+
 ## Compile, Migrate, Test
 Make sure to have Ganache running. The default network that truffle migrates to is [`development`](truffle-config.js) which details the default port and IP address (localhost) Ganache runs on.
 
